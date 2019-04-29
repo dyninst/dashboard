@@ -1,0 +1,6 @@
+#Eclipse folders
+.project
+.cproject
+.pydevproject
+.settings
+
