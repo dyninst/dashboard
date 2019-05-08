@@ -1,6 +1,5 @@
 from bottle import route, run, request, HTTPError, template, static_file
 import tarfile
-import sqlite3
 from io import TextIOWrapper
 import log_files
 
