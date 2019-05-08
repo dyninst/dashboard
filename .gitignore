@@ -8,3 +8,6 @@ logs/
 
 # pyc files
 *.pyc
+
+# sqlite
+*.sqlite3
