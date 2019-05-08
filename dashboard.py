@@ -33,6 +33,12 @@ def process_upload():
             
             # Read the git branches and commits
             results.update(read_git_logs(tar, root_dir, files))
+            
+            # Load the results into the database
+            if results['build_status'] == 'OK':
+                logfile = "{0:s}/testsuite/tests/results.log".format(root_dir)
+                if logfile not in files:
+                    raise HTTPError(500, body="'{0:s}' does not exist in {1:s}".format(logfile, user_file.filename))
                 
         from uuid import uuid4
         file_name = 'logs/' + str(uuid4()) + '.tar.gz'
