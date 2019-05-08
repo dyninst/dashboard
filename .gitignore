@@ -5,3 +5,6 @@
 .settings
 
 logs/
+
+# pyc files
+*.pyc
