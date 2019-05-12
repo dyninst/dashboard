@@ -12,7 +12,6 @@
 <th>Build Status</th>
 <th>Dyninst</th>
 <th>Testsuite</th>
-<th>Log File</th>
 </tr>
 
 <tr>
@@ -30,7 +29,6 @@ end
 
 <td align="center">{{results['dyninst_branch'] + ' / ' + results['dyninst_commit'][0:7]}}</td>
 <td align="center">{{results['testsuite_branch'] + ' / ' + results['testsuite_commit'][0:7]}}</td>
-<td align="center"><a href="{{results['user_file']}}" download>Download</a></td>
 </tr>
 
 </table>
