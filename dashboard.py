@@ -2,6 +2,7 @@ from bottle import route, run, request, HTTPError, template, static_file
 import tarfile
 from io import TextIOWrapper
 import log_files
+import sql.inserts
 
 @route('/logs/<filename:path>')
 def download(filename):

@@ -14,3 +14,24 @@ def _insert_single(table, fields, values):
     rowid = cur.lastrowid
     cur.close()
     return rowid
+
+def create_run(properties):
+    fields = [
+        'arch', 'os', 'kernel',
+        'libc', 'hostname', 'build_status',
+        'dyninst_commit', 'dyninst_branch',
+        'testsuite_commit', 'testsuite_branch'
+    ]
+    values = [properties[k] for k in fields]
+    
+    # Manually set the creation datetime
+    fields.append('date')
+    values.append("datetime('now')")
+    
+    fields.append('kernel_version')
+    values.append(properties['version'])
+    
+    fields.append('upload_file')
+    values.append(properties['user_file'])
+
+    return _insert_single('run', fields, values)
