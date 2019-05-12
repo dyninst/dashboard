@@ -3,6 +3,7 @@ import tarfile
 from io import TextIOWrapper
 import log_files
 import sql.inserts
+import sql.views
 
 @route('/logs/<filename:path>')
 def download(filename):
@@ -42,9 +43,16 @@ def process_upload():
             
             # Load the results into the database
             if results['build_status'] == 'OK':
-                logfile = "{0:s}/testsuite/tests/results.log".format(root_dir)
-                if logfile not in files:
-                    raise HTTPError(500, body="'{0:s}' does not exist in {1:s}".format(logfile, user_file.filename))
+                logfile_name = "{0:s}/testsuite/tests/results.log".format(root_dir)
+                if logfile_name not in files:
+                    results['summary'] = None
+                else:
+                     try:
+                        runid = sql.inserts.create_run(results)
+                        logfile = tar.extractfile(logfile_name)
+                        sql.inserts.save_results(runid, TextIOWrapper(logfile, encoding='utf-8'))
+                     except:
+                         raise HTTPError(500, body="Error creating run for {0:s}".format(user_file.filename))
         
         return template('upload_results', results=results)
     
