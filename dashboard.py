@@ -24,6 +24,11 @@ def process_upload():
     
             logfile = tar.extractfile("build.log")
             results = log_files.read_properties(TextIOWrapper(logfile, encoding='utf-8'))
+            
+            from uuid import uuid4
+            file_name = 'logs/' + str(uuid4()) + '.tar.gz'
+            user_file.save(file_name)
+            results['user_file'] = file_name
     
             root_dir = results['root_dir']
             if "{0:s}/FAILED".format(root_dir) in files:
@@ -39,11 +44,6 @@ def process_upload():
                 logfile = "{0:s}/testsuite/tests/results.log".format(root_dir)
                 if logfile not in files:
                     raise HTTPError(500, body="'{0:s}' does not exist in {1:s}".format(logfile, user_file.filename))
-                
-        from uuid import uuid4
-        file_name = 'logs/' + str(uuid4()) + '.tar.gz'
-        user_file.save(file_name)
-        results['user_file'] = file_name
         
         return template('upload_results', results=results)
     
