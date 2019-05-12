@@ -51,6 +51,12 @@ def process_upload():
                         runid = sql.inserts.create_run(results)
                         logfile = tar.extractfile(logfile_name)
                         sql.inserts.save_results(runid, TextIOWrapper(logfile, encoding='utf-8'))
+                        
+                        results['summary'] = {}
+                        results['summary'].setdefault('TOTAL', 0)
+                        for k,v in sql.views.results_summary(runid):
+                            results['summary'].setdefault(k, v)
+                            results['summary']['TOTAL'] += v
                      except:
                          raise HTTPError(500, body="Error creating run for {0:s}".format(user_file.filename))
         

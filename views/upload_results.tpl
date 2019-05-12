@@ -33,5 +33,25 @@ end
 
 </table>
 
+<table border="1">
+
+<tr>
+<th>PASSED</th>
+<th>FAILED</th>
+<th>SKIPPED</th>
+<th>CRASHED</th>
+<th>TOTAL</th>
+</tr>
+
+<tr>
+<td align="center">{{results['summary']['PASSED']}}</td>
+<td align="center">{{results['summary']['FAILED']}}</td>
+<td align="center">{{results['summary']['SKIPPED']}}</td>
+<td align="center">{{results['summary']['CRASHED']}}</td>
+<td align="center">{{results['summary']['TOTAL']}}</td>
+</tr>
+
+</table>
+
 </body>
 </html>
