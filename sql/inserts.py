@@ -35,3 +35,27 @@ def create_run(properties):
     values.append(properties['user_file'])
 
     return _insert_single('run', fields, values)
+
+def save_results(runid, logfile):
+    fields = [
+        'runid', 'test_name',
+        'compiler', 'optimization',
+        'abi', 'mode', 'threading',
+        'link', 'pic', 'result', 'reason'
+    ]
+
+    db = sqlite3.connect("test.sqlite3")
+    cur = db.cursor()
+
+    cur.execute('BEGIN TRANSACTION')
+    reader = csv.reader(logfile)
+    reader.__next__()
+    for result in reader:
+        values = [runid]
+        values.extend(result)
+        if len(values) > 1:
+            query = "INSERT INTO test_result({0:s}) VALUES ({1:s})".format(','.join(fields),','.join(['?']*len(values)))
+            cur.execute(query, values)
+
+    cur.execute('COMMIT')
+    cur.close()
