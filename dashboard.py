@@ -47,7 +47,7 @@ def process_upload():
                 if logfile_name not in files:
                     results['summary'] = None
                 else:
-                     try:
+                    try:
                         runid = sql.inserts.create_run(results)
                         logfile = tar.extractfile(logfile_name)
                         sql.inserts.save_results(runid, TextIOWrapper(logfile, encoding='utf-8'))
@@ -57,8 +57,8 @@ def process_upload():
                         for k,v in sql.views.results_summary(runid):
                             results['summary'].setdefault(k, v)
                             results['summary']['TOTAL'] += v
-                     except:
-                         raise HTTPError(500, body="Error creating run for {0:s}".format(user_file.filename))
+                    except:
+                        raise HTTPError(500, body="Error creating run for {0:s}".format(user_file.filename))
         
         return template('upload_results', results=results)
     
