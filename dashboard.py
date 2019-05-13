@@ -1,9 +1,14 @@
+import bottle
 from bottle import route, run, request, HTTPError, template, static_file
 import tarfile
 from io import TextIOWrapper
 import log_files
 import sql.inserts
 import sql.views
+from sql.bottle_sqlite import SQLitePlugin
+
+sqlite = SQLitePlugin(dbfile="test.sqlite3")
+bottle.install(sqlite)
 
 @route('/logs/<filename:path>')
 def download(filename):
@@ -14,8 +19,11 @@ def show_upload_form():
     return template('upload')
 
 @route('/upload', method='POST')
-def process_upload():
+def process_upload(db):
     user_file = request.files.get('upload')
+    
+    if user_file is None:
+        raise HTTPError(500, body="Uploaded file is not valid")
 
     try:
         with tarfile.open(fileobj=user_file.file, mode="r:gz") as tar:
@@ -48,13 +56,13 @@ def process_upload():
                     results['summary'] = None
                 else:
                     try:
-                        runid = sql.inserts.create_run(results)
+                        runid = sql.inserts.create_run(db, results)
                         logfile = tar.extractfile(logfile_name)
-                        sql.inserts.save_results(runid, TextIOWrapper(logfile, encoding='utf-8'))
+                        sql.inserts.save_results(db, runid, TextIOWrapper(logfile, encoding='utf-8'))
                         
                         results['summary'] = {}
                         results['summary'].setdefault('TOTAL', 0)
-                        for k,v in sql.views.results_summary(runid):
+                        for k,v in sql.views.results_summary(db, runid):
                             results['summary'].setdefault(k, v)
                             results['summary']['TOTAL'] += v
                     except:

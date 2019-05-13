@@ -1,8 +1,4 @@
-import sqlite3
-
-def results_summary(runid):
-    db = sqlite3.connect("test.sqlite3")
-    cur = db.cursor()
+def results_summary(db_conn, runid):
     query = """
         select
             status.name as result,
@@ -13,12 +9,13 @@ def results_summary(runid):
             and test.runid = ?
         group by status.name
         """
+    cur = db_conn.cursor()
     cur.execute(query, [str(runid)])
     res = cur.fetchall()
     cur.close()
     return res
 
-def regressions(new_runid, old_runid):
+def regressions(db_conn, new_runid, old_runid):
     query = """
         select
             new.test,
@@ -49,8 +46,7 @@ def regressions(new_runid, old_runid):
             and new.result <> old.result
     """
     
-    db = sqlite3.connect("test.sqlite3")
-    cur = db.cursor()
+    cur = db_conn.cursor()
     cur.execute(query, [str(new_runid), str(old_runid)])
     res = cur.fetchall()
     cur.close()
