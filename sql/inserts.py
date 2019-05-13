@@ -57,5 +57,5 @@ def save_results(runid, logfile):
             query = "INSERT INTO test_result({0:s}) VALUES ({1:s})".format(','.join(fields),','.join(['?']*len(values)))
             cur.execute(query, values)
 
-    cur.execute('COMMIT')
+    db.commit()
     cur.close()
