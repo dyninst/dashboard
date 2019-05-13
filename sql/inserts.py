@@ -1,5 +1,3 @@
-import csv
-
 def create_run(db_conn, properties):
     fields = [
         'arch', 'os', 'kernel',
@@ -36,9 +34,7 @@ def save_results(db_conn, runid, logfile):
     ]
 
     db_conn.execute('BEGIN TRANSACTION')
-    reader = csv.reader(logfile)
-    next(reader) # skip the header
-    for result in reader:
+    for result in logfile:
         values = [runid]
         values.extend(result)
         if len(values) > 1:

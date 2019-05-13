@@ -6,6 +6,7 @@ import log_files
 import sql.inserts
 import sql.views
 from sql.bottle_sqlite import SQLitePlugin
+import csv
 
 sqlite = SQLitePlugin(dbfile="test.sqlite3")
 bottle.install(sqlite)
@@ -58,7 +59,9 @@ def process_upload(db):
                     try:
                         runid = sql.inserts.create_run(db, results)
                         logfile = tar.extractfile(logfile_name)
-                        sql.inserts.save_results(db, runid, TextIOWrapper(logfile, encoding='utf-8'))
+                        reader = csv.reader(TextIOWrapper(logfile, encoding='utf-8'))
+                        next(reader) # skip the header
+                        sql.inserts.save_results(db, runid, reader)
                         
                         results['summary'] = {}
                         results['summary'].setdefault('TOTAL', 0)
