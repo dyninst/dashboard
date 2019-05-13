@@ -49,7 +49,7 @@ def save_results(runid, logfile):
 
     cur.execute('BEGIN TRANSACTION')
     reader = csv.reader(logfile)
-    reader.__next__()
+    next(reader) # skip the header
     for result in reader:
         values = [runid]
         values.extend(result)
