@@ -13,7 +13,7 @@ def results_summary(runid):
             and test.runid = ?
         group by status.name
         """
-    cur.execute(query, str(runid))
+    cur.execute(query, [str(runid)])
     res = cur.fetchall()
     cur.close()
     return res
@@ -51,7 +51,7 @@ def regressions(new_runid, old_runid):
     
     db = sqlite3.connect("test.sqlite3")
     cur = db.cursor()
-    cur.execute(query, str(new_runid), str(old_runid))
+    cur.execute(query, [str(new_runid), str(old_runid)])
     res = cur.fetchall()
     cur.close()
     return res
