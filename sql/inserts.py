@@ -7,17 +7,14 @@ def create_run(db_conn, properties):
     ]
     values = [properties[k] for k in fields]
     
-    # Manually set the creation datetime
-    fields.append('date')
-    values.append("datetime('now')")
-    
     fields.append('kernel_version')
     values.append(properties['version'])
     
     fields.append('upload_file')
     values.append(properties['user_file'])
 
-    query = "INSERT INTO run({0:s}) VALUES ({1:s})".format(','.join(fields),','.join(['?']*len(values)))
+    query = "INSERT INTO run({0:s},date) VALUES ({1:s},datetime('now','localtime'))"
+    query = query.format(','.join(fields),','.join(['?']*len(values)))
     cur = db_conn.cursor()
     cur.execute(query, values)
     db_conn.commit()
