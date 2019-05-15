@@ -59,23 +59,22 @@ def process_upload(db):
             # Load the results into the database
             if results['build_status'] == 'OK':
                 logfile_name = "{0:s}/testsuite/tests/results.log".format(root_dir)
-                if logfile_name not in files:
-                    results['summary'] = None
-                else:
-                    try:
-                        runid = sql.inserts.create_run(db, results)
-                        logfile = tar.extractfile(logfile_name)
-                        reader = csv.reader(TextIOWrapper(logfile, encoding='utf-8'))
-                        next(reader) # skip the header
-                        sql.inserts.save_results(db, runid, reader)
-                        
-                        results['summary'] = {}
-                        results['summary'].setdefault('TOTAL', 0)
-                        for k,v in sql.views.results_summary(db, runid):
-                            results['summary'].setdefault(k, v)
-                            results['summary']['TOTAL'] += v
-                    except:
-                        raise HTTPError(500, body="Error creating run for {0:s}".format(user_file.filename))
+                try:
+                    logfile = tar.extractfile(logfile_name)
+                    reader = csv.reader(TextIOWrapper(logfile, encoding='utf-8'))
+                    next(reader) # skip the header
+                    sql.inserts.save_results(db, runid, reader)
+                except:
+                    raise HTTPError(500, body="Error inserting results for {0:s}".format(user_file.filename))
+                
+                try:                    
+                    results['summary'] = {}
+                    results['summary'].setdefault('TOTAL', 0)
+                    for k,v in sql.views.results_summary(db, runid):
+                        results['summary'].setdefault(k, v)
+                        results['summary']['TOTAL'] += v
+                except:
+                    raise HTTPError(500, body="Error creating summary for {0:s}".format(user_file.filename))
         
         return template('upload_results', results=results)
     
