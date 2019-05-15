@@ -49,6 +49,12 @@ def process_upload(db):
             
             # Read the git branches and commits
             results.update(log_files.read_git_logs(tar, root_dir, files))
+
+            # Save the run information            
+            try:
+                runid = sql.inserts.create_run(db, results)
+            except:
+                raise HTTPError(500, body="Error creating run for {0:s}".format(user_file.filename))
             
             # Load the results into the database
             if results['build_status'] == 'OK':
