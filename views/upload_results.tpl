@@ -33,6 +33,8 @@ end
 
 </table>
 
+% if 'summary' in results:
+
 <table border="1">
 
 <tr>
@@ -50,7 +52,7 @@ end
 <td align="center">{{results['summary']['CRASHED']}}</td>
 <td align="center">{{results['summary']['TOTAL']}}</td>
 </tr>
-
+% end
 </table>
 
 </body>
