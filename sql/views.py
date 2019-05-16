@@ -25,6 +25,26 @@ def get_runs(db_conn, limit=None, order_by=None):
     cur.close()
     return res
 
+def get_most_recent_run(db_conn, new_runid, hostname=None):
+    query = """
+        select
+            max(id)
+        from
+            run
+        where
+            id < ?
+        """
+    
+    if hostname is not None:
+        query += " and hostname = ?"
+    
+    cur = db_conn.cursor()
+    params = [new_runid, hostname]
+    cur.execute(query, [p for p in params if p is not None])
+    res = cur.fetchall()
+    cur.close()
+    return res
+    
 def results_summary(db_conn, runid):
     query = """
         select
