@@ -11,6 +11,26 @@ import csv
 sqlite = SQLitePlugin(dbfile="test.sqlite3")
 bottle.install(sqlite)
 
+@route('/')
+def index(db):
+    runs = sql.views.get_runs(db, limit=10, order_by='date')
+    cols = runs[0].keys()
+    res = []
+    for r in runs:
+        d = dict(zip(cols,r))
+        runid = r[0]
+        d.setdefault('summary', get_result_summary(db, runid))
+        d.setdefault('regressions', 'none')
+        
+        old_runid = sql.views.get_most_recent_run(db, runid, hostname=d['hostname'])
+        old_runid = old_runid[0][0]
+        if old_runid is not None:
+            regs = sql.views.regressions(db, runid, old_runid)
+            if regs:
+                d['regressions'] = str(len(regs))
+        res.append(d)
+    return template('runs', runs=res)
+
 @route('/logs/<filename:path>')
 def download(filename):
     return static_file(filename, root='logs/', download=filename)
@@ -66,20 +86,33 @@ def process_upload(db):
                     sql.inserts.save_results(db, runid, reader)
                 except:
                     raise HTTPError(500, body="Error inserting results for {0:s}".format(user_file.filename))
-                
-                try:                    
-                    results['summary'] = {}
-                    results['summary'].setdefault('TOTAL', 0)
-                    for k,v in sql.views.results_summary(db, runid):
-                        results['summary'].setdefault(k, v)
-                        results['summary']['TOTAL'] += v
-                except:
-                    raise HTTPError(500, body="Error creating summary for {0:s}".format(user_file.filename))
         
-        return template('upload_results', results=results)
+        return index(db)
     
     except(tarfile.ReadError):
         raise HTTPError(500, body="'{0:s}' is not a valid tarfile".format(user_file.filename))
+
+def get_result_summary(db, runid):
+    try:                    
+        summary = {}
+        summary.setdefault('TOTAL', 0)
+        for k,v in sql.views.results_summary(db, runid):
+            summary.setdefault(k, v)
+            summary['TOTAL'] += v
+    except:
+        raise HTTPError(500, body="Error creating summary")
+
+    if summary['TOTAL'] > 0:
+        return \
+            str(summary['PASSED'])  + '/' + \
+            str(summary['FAILED'])  + '/' + \
+            str(summary['SKIPPED']) + '/' + \
+            str(summary['CRASHED']) + '  (' + \
+            str(summary['TOTAL'])   + ')'
+    else:
+        return 'Unknown'
+    
+    return summary
 
 if __name__ == '__main__':
     run(host='localhost', port=8080)
