@@ -65,12 +65,12 @@ def results_summary(db_conn, runid):
 def regressions(db_conn, new_runid, old_runid):
     query = """
         select
-            new.test,
-            new.comp,
-            new.opt,
+            new.test_name,
+            new.compiler,
+            new.optimization,
             new.abi,
             new.mode,
-            new.thread,
+            new.threading,
             new.link,
             new.pic,
             old.result as previous_result,
@@ -78,12 +78,12 @@ def regressions(db_conn, new_runid, old_runid):
         from
             test_result as new
             join test_result as old on
-                new.test = old.test
-                and new.comp = old.comp
-                and new.opt = old.opt
+                new.test_name = old.test_name
+                and new.compiler = old.compiler
+                and new.optimization = old.optimization
                 and new.abi = old.abi
                 and new.mode = old.mode
-                and new.thread = old.thread
+                and new.threading = old.threading
                 and new.link = old.link
                 and new.pic = old.pic
         where
@@ -92,7 +92,6 @@ def regressions(db_conn, new_runid, old_runid):
             and new.result in('CRASHED','FAILED')
             and new.result <> old.result
     """
-    
     cur = db_conn.cursor()
     cur.execute(query, [str(new_runid), str(old_runid)])
     res = cur.fetchall()
