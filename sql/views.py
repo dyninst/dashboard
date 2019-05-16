@@ -1,3 +1,30 @@
+def get_runs(db_conn, limit=None, order_by=None):
+    query = """
+        select
+            id,
+            arch,
+            libc,
+            hostname,
+            build_status,
+            date,
+            dyninst_commit,
+            dyninst_branch,
+            testsuite_commit,
+            testsuite_branch
+        from run """
+    
+    if order_by is not None:
+        query += " order by {0:s} desc".format(order_by)    
+    if limit is not None:
+        query += " limit {0:d}".format(int(limit))
+    
+    query = query.format()
+    cur = db_conn.cursor()
+    cur.execute(query)
+    res = cur.fetchall()
+    cur.close()
+    return res
+
 def results_summary(db_conn, runid):
     query = """
         select
