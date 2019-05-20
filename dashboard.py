@@ -1,5 +1,5 @@
 import bottle
-from bottle import route, run, request, HTTPError, template, static_file
+from bottle import route, run, request, HTTPError, template, static_file, redirect
 import tarfile
 from io import TextIOWrapper
 import log_files
@@ -87,7 +87,7 @@ def process_upload(db):
                 except:
                     raise HTTPError(500, body="Error inserting results for {0:s}".format(user_file.filename))
         
-        return index(db)
+        return redirect('/')
     
     except(tarfile.ReadError):
         raise HTTPError(500, body="'{0:s}' is not a valid tarfile".format(user_file.filename))
