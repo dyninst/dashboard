@@ -43,6 +43,12 @@ def show_upload_form():
 def process_upload(db):
     user_file = request.files.get('upload')
     
+    # Save the uploaded file
+    # NB: This needs to be done _before_ it is read from
+    from uuid import uuid4
+    file_name = 'logs/' + str(uuid4()) + '.tar.gz'
+    user_file.save(file_name)
+    
     if user_file is None:
         raise HTTPError(500, body="Uploaded file is not valid")
 
@@ -56,9 +62,6 @@ def process_upload(db):
             logfile = tar.extractfile("build.log")
             results = log_files.read_properties(TextIOWrapper(logfile, encoding='utf-8'))
             
-            from uuid import uuid4
-            file_name = 'logs/' + str(uuid4()) + '.tar.gz'
-            user_file.save(file_name)
             results['user_file'] = file_name
     
             root_dir = results['root_dir']
@@ -94,6 +97,8 @@ def process_upload(db):
         return redirect('/')
     
     except(tarfile.ReadError):
+        from os import unlink
+        unlink(file_name)
         raise HTTPError(500, body="'{0:s}' is not a valid tarfile".format(user_file.filename))
 
 def get_result_summary(db, runid):
