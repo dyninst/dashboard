@@ -79,7 +79,7 @@ def process_upload(db):
             # Sqlite doesn't like that, so remove it
             results['date'] = results['date'].replace('.', '')
 
-            # Save the run information            
+            # Save the run information
             try:
                 runid = sql.inserts.create_run(db, results)
             except:

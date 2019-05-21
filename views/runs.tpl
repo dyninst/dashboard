@@ -38,5 +38,8 @@
 %end
 
 </table>
+
+<br><br>
+<a href="/upload">Upload a new run</a>
 </body>
 </html>
