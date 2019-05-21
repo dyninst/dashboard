@@ -20,7 +20,7 @@ def index(db):
         d = dict(zip(cols,r))
         runid = r[0]
         d.setdefault('summary', get_result_summary(db, runid))
-        d.setdefault('regressions', 'none')
+        d.setdefault('regressions', 'Unknown')
         
         old_runid = sql.views.get_most_recent_run(db, runid, hostname=d['hostname'])
         old_runid = old_runid[0][0]
@@ -28,6 +28,8 @@ def index(db):
             regs = sql.views.regressions(db, runid, old_runid)
             if regs:
                 d['regressions'] = str(len(regs))
+            else:
+                d['regressions'] = 'none'
         res.append(d)
     return template('runs', runs=res)
 
