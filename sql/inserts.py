@@ -12,8 +12,12 @@ def create_run(db_conn, properties):
     
     fields.append('upload_file')
     values.append(properties['user_file'])
+    
+    fields.append('run_date')
+    values.append(properties['date'])
 
-    query = "INSERT INTO run({0:s},date) VALUES ({1:s},datetime('now','localtime'))"
+    # datetime is UTC
+    query = "INSERT INTO run({0:s},upload_date) VALUES ({1:s},datetime('now'))"
     query = query.format(','.join(fields),','.join(['?']*len(values)))
     cur = db_conn.cursor()
     cur.execute(query, values)

@@ -69,6 +69,10 @@ def process_upload(db):
             
             # Read the git branches and commits
             results.update(log_files.read_git_logs(tar, root_dir, files))
+            
+            # There may be a trailing period in the UTC date
+            # Sqlite doesn't like that, so remove it
+            results['date'] = results['date'].replace('.', '')
 
             # Save the run information            
             try:
