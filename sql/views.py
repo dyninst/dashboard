@@ -32,7 +32,7 @@ def get_most_recent_run(db_conn, new_runid, hostname=None):
         from
             run
         where
-            id < ?
+            run_date < (select run_date from run where id = ?)
         """
     
     if hostname is not None:
