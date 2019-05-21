@@ -6,7 +6,7 @@ def get_runs(db_conn, limit=None, order_by=None):
             libc,
             hostname,
             build_status,
-            date,
+            datetime(run_date) as date,
             dyninst_commit,
             dyninst_branch,
             testsuite_commit,

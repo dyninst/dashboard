@@ -13,7 +13,7 @@ bottle.install(sqlite)
 
 @route('/')
 def index(db):
-    runs = sql.views.get_runs(db, limit=10, order_by='date')
+    runs = sql.views.get_runs(db, limit=10, order_by='run_date')
     cols = runs[0].keys()
     res = []
     for r in runs:
