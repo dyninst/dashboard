@@ -4,14 +4,19 @@ def get_runs(db_conn, limit=None, order_by=None):
             id,
             arch,
             vendor,
+            os,
+            kernel,
+            kernel_version,
             libc,
             hostname,
             build_status,
             datetime(run_date) as date,
+            datetime(upload_date) as upload_date,
             dyninst_commit,
             dyninst_branch,
             testsuite_commit,
-            testsuite_branch
+            testsuite_branch,
+            upload_file
         from run """
     
     if order_by is not None:
