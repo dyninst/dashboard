@@ -45,14 +45,14 @@ def show_upload_form():
 def process_upload(db):
     user_file = request.files.get('upload')
     
+    if user_file is None:
+        raise HTTPError(500, body="Uploaded file is not valid")
+
     # Save the uploaded file
     # NB: This needs to be done _before_ it is read from
     from uuid import uuid4
     file_name = 'logs/' + str(uuid4()) + '.tar.gz'
     user_file.save(file_name)
-    
-    if user_file is None:
-        raise HTTPError(500, body="Uploaded file is not valid")
 
     try:
         with tarfile.open(fileobj=user_file.file, mode="r:gz") as tar:
