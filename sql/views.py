@@ -37,16 +37,42 @@ def get_runs(db_conn, limit=None, order_by=None, runid=None):
 def get_most_recent_run(db_conn, new_runid, hostname=None):
     query = """
         select
-            max(id)
+            old_run.id,
+            old_run.arch,
+            old_run.vendor,
+            old_run.os,
+            old_run.kernel,
+            old_run.kernel_version,
+            old_run.libc,
+            old_run.hostname,
+            old_run.build_status,
+            datetime(old_run.run_date) as date,
+            datetime(old_run.upload_date) as upload_date,
+            old_run.dyninst_commit,
+            old_run.dyninst_branch,
+            old_run.testsuite_commit,
+            old_run.testsuite_branch,
+            old_run.upload_file
         from
-            run
+            run as cur_run,
+            run as old_run
         where
-            run_date < (select run_date from run where id = ?)
+            cur_run.id = ?
+            and old_run.run_date < cur_run.run_date
         """
     
     if hostname is not None:
-        query += " and hostname = ?"
-    
+        query += """
+            and cur_run.hostname = ?
+            and cur_run.hostname = old_run.hostname
+        """
+
+    query += """
+        order by
+            old_run.run_date desc,
+            old_run.upload_date desc
+        limit 1
+    """
     cur = db_conn.cursor()
     params = [new_runid, hostname]
     cur.execute(query, [p for p in params if p is not None])
