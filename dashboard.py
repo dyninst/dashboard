@@ -91,10 +91,12 @@ def process_upload(db):
             results['user_file'] = file_name
     
             root_dir = results['root_dir']
-            if "{0:s}/FAILED".format(root_dir) in files:
-                results['build_status'] = 'FAILED'
-            else:
-                results['build_status'] = 'OK'
+            
+            for t in ('build','tests'):
+                if "{0:s}/{1:s}.FAILED".format(root_dir, t.title()) in files:
+                    results['{0:s}_status'.format(t)] = 'FAILED'
+                else:
+                    results['{0:s}_status'.format(t)] = 'OK'
             
             # Read the git branches and commits
             results.update(log_files.read_git_logs(tar, root_dir, files))
