@@ -11,6 +11,25 @@ import csv
 sqlite = SQLitePlugin(dbfile="test.sqlite3")
 bottle.install(sqlite)
 
+@route('/regressions')
+def show_regressions(db):
+    cur_id = request.query.id
+    regs = {}
+    cur_run = sql.views.get_runs(db, runid=cur_id)[0]
+    regs.setdefault('base_commit', cur_run)
+
+    # Get the regressions for the most recent run on the same host
+    run = sql.views.get_most_recent_run(db, cur_id, hostname=cur_run['hostname'])[0]
+    regs.setdefault(
+        'against_host',
+        {
+            'run':run,
+            'regressions': sql.views.regressions(db, cur_id, run['id'])
+        }
+    )
+
+    return template('regressions', regs=regs)
+
 @route('/')
 def index(db):
     runs = sql.views.get_runs(db, limit=10, order_by='run_date')
@@ -19,13 +38,13 @@ def index(db):
     for r in runs:
         d = dict(zip(cols,r))
         runid = r[0]
+        d.setdefault('runid', runid)
         d.setdefault('summary', get_result_summary(db, runid))
         d.setdefault('regressions', 'Unknown')
         
-        old_runid = sql.views.get_most_recent_run(db, runid, hostname=d['hostname'])
-        old_runid = old_runid[0][0]
-        if old_runid is not None:
-            regs = sql.views.regressions(db, runid, old_runid)
+        old_run = sql.views.get_most_recent_run(db, runid, hostname=d['hostname'])
+        if len(old_run)> 0:
+            regs = sql.views.regressions(db, runid, old_run[0][0])
             if regs:
                 d['regressions'] = str(len(regs))
             else:

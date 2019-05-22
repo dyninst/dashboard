@@ -31,7 +31,17 @@
 	%>
 	<td align="center" bgcolor={{bgcolor}}>{{r['build_status']}}</td>
 	<td align="center">{{r['summary']}}</td>
-	<td align="center">{{r['regressions']}}</td>
+
+% 	if r['regressions'] == 'Unknown':
+		<td align="center" bgcolor=#ECCB39>{{r['regressions']}}</td>
+%	elif r['regressions'] == 'none':
+		<td align="center" bgcolor=#58FA58>{{r['regressions']}}</td>
+% 	else:
+		<td align="center" bgcolor=#FA5858>
+			<a href="/regressions?id={{r['runid']}}">{{r['regressions']}}</a>
+		</td>
+% 	end
+	
 	<td align="center">{{r['dyninst_branch'] + ' / ' + r['dyninst_commit'][0:7]}}</td>
 	<td align="center">{{r['testsuite_branch'] + ' / ' + r['testsuite_commit'][0:7]}}</td>
 	</tr>
