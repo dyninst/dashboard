@@ -1,6 +1,6 @@
 def create_run(db_conn, properties):
     fields = [
-        'arch', 'os', 'kernel',
+        'arch', 'vendor', 'os', 'kernel',
         'libc', 'hostname', 'build_status',
         'dyninst_commit', 'dyninst_branch',
         'testsuite_commit', 'testsuite_branch'

@@ -3,6 +3,7 @@ def get_runs(db_conn, limit=None, order_by=None):
         select
             id,
             arch,
+            vendor,
             libc,
             hostname,
             build_status,

@@ -64,6 +64,11 @@ def process_upload(db):
             logfile = tar.extractfile("build.log")
             results = log_files.read_properties(TextIOWrapper(logfile, encoding='utf-8'))
             
+            # Split the architecture and vendor names
+            arch, vendor = results['arch'].split('/', 1)
+            results['arch'] = arch
+            results.setdefault('vendor', vendor)
+            
             results['user_file'] = file_name
     
             root_dir = results['root_dir']

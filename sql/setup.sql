@@ -17,6 +17,7 @@
 --create table run(
 --	"id" INTEGER NOT NULL PRIMARY KEY,
 --	"arch" TEXT,
+--	"vendor" TEXT,
 --	"os" TEXT,
 --	"kernel" TEXT,
 --	"kernel_version" TEXT,
