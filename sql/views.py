@@ -1,4 +1,4 @@
-def get_runs(db_conn, limit=None, order_by=None):
+def get_runs(db_conn, limit=None, order_by=None, runid=None):
     query = """
         select
             id,
@@ -17,16 +17,19 @@ def get_runs(db_conn, limit=None, order_by=None):
             testsuite_commit,
             testsuite_branch,
             upload_file
-        from run """
+        from run
+        where 1=1 """
     
+    if runid is not None:
+        query += " and id = ? "
     if order_by is not None:
         query += " order by {0:s} desc".format(order_by)    
     if limit is not None:
         query += " limit {0:d}".format(int(limit))
-    
-    query = query.format()
+
+    params = [runid]
     cur = db_conn.cursor()
-    cur.execute(query)
+    cur.execute(query, [p for p in params if p is not None])
     res = cur.fetchall()
     cur.close()
     return res
