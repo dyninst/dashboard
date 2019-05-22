@@ -109,7 +109,8 @@ def regressions(db_conn, new_runid, old_runid):
             new.link,
             new.pic,
             old.result as previous_result,
-            new.result as current_result
+            new.result as current_result,
+            new.reason
         from
             test_result as new
             join test_result as old on
