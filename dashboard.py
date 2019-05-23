@@ -8,7 +8,7 @@ import sql.views
 from sql.bottle_sqlite import SQLitePlugin
 import csv
 
-sqlite = SQLitePlugin(dbfile="test.sqlite3")
+sqlite = SQLitePlugin(dbfile="results.sqlite3")
 bottle.install(sqlite)
 
 @route('/regressions')
