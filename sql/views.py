@@ -1,3 +1,23 @@
+def get_run_hosts(db_conn, arch=None):
+    query = """
+        select
+            distinct hostname
+        from
+            run
+        where
+            1=1
+    """
+    
+    if arch is not None:
+        query += " and arch = ? "
+    
+    cur = db_conn.cursor();
+    params = [arch]
+    cur.execute(query, [p for p in params if p is not None])
+    res = cur.fetchall()
+    cur.close()
+    return res
+
 def get_runs(db_conn, limit=None, order_by=None, runid=None):
     query = """
         select
