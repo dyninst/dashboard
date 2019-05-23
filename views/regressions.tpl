@@ -19,8 +19,17 @@
 		<td align="center">{{r['arch']}}/{{r['vendor']}}</td>
 		<td align="center">{{r['hostname']}}</td>
 		<td align="center">{{r['libc']}}</td>
-		<td align="center">{{r['dyninst_branch'] + ' / ' + r['dyninst_commit'][0:7]}}</td>
-		<td align="center">{{r['testsuite_branch'] + ' / ' + r['testsuite_commit'][0:7]}}</td>
+<%	for t in ('dyninst','testsuite'):
+		branch = r['{0:s}_branch'.format(t)]
+		commit = r['{0:s}_commit'.format(t)]
+		link = 'https://github.com/dyninst/{0:s}/commit/{1:s}'.format(t, commit)
+		if branch[0:2] == 'PR':
+			# pull request branches have the for PRXXX
+			link = 'https://github.com/dyninst/{0:s}/pull/{1:s}'.format(t, branch[2:])
+		end
+%>
+		<td align="center">{{branch}}/<a href="{{link}}">{{commit[0:7]}}</a></td>
+%	end
 	</tr>
 	</table>
 
@@ -44,8 +53,17 @@
 		<td align="center">{{r['date']}}</td>
 		<td align="center">{{r['vendor']}}</td>
 		<td align="center">{{r['libc']}}</td>
-		<td align="center">{{r['dyninst_branch'] + ' / ' + r['dyninst_commit'][0:7]}}</td>
-		<td align="center">{{r['testsuite_branch'] + ' / ' + r['testsuite_commit'][0:7]}}</td>
+<%	for t in ('dyninst','testsuite'):
+		branch = r['{0:s}_branch'.format(t)]
+		commit = r['{0:s}_commit'.format(t)]
+		link = 'https://github.com/dyninst/{0:s}/commit/{1:s}'.format(t, commit)
+		if branch[0:2] == 'PR':
+			# pull request branches have the for PRXXX
+			link = 'https://github.com/dyninst/{0:s}/pull/{1:s}'.format(t, branch[2:])
+		end
+%>
+		<td align="center">{{branch}}/<a href="{{link}}">{{commit[0:7]}}</a></td>
+%	end
 	</tr>
 	</table>
 <br>
