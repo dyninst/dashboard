@@ -18,12 +18,16 @@ def show_regressions(db):
     cur_run = sql.views.get_runs(db, runid=cur_id)[0]
     regs.setdefault('base_commit', cur_run)
 
-    # Get the regressions for the most recent run on the same host
-    run = sql.views.get_most_recent_run(db, cur_id, hostname=cur_run['hostname'])[0]
-    regs['against_host'] = {
-        'run':run,
-        'regressions': sql.views.regressions(db, cur_id, run['id'])
-    }
+    regs['against_arch'] = []
+    hosts = sql.views.get_run_hosts(db, arch=cur_run['arch'])
+    
+    for row in hosts:
+        run = sql.views.get_most_recent_run(db, cur_id, hostname=row['hostname'])[0]
+        d = {'run': run, 'regressions':None}
+        regressions = sql.views.regressions(db, cur_id, run['id'])
+        if len(regressions) > 0:
+            d['regressions'] = regressions
+        regs['against_arch'].append(d)
 
     return template('regressions', regs=regs)
 
