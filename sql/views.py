@@ -86,10 +86,7 @@ def get_most_recent_run(db_conn, new_runid, hostname=None):
         """
     
     if hostname is not None:
-        query += """
-            and cur_run.hostname = ?
-            and cur_run.hostname = old_run.hostname
-        """
+        query += " and old_run.hostname = ? "
 
     query += """
         order by
