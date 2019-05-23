@@ -1,4 +1,4 @@
-def get_run_hosts(db_conn, arch=None):
+def run_hosts(db_conn, arch=None):
     query = """
         select
             distinct hostname
@@ -18,7 +18,7 @@ def get_run_hosts(db_conn, arch=None):
     cur.close()
     return res
 
-def get_runs(db_conn, limit=None, order_by=None, runid=None):
+def runs(db_conn, limit=None, order_by=None, runid=None):
     query = """
         select
             id,
@@ -55,7 +55,7 @@ def get_runs(db_conn, limit=None, order_by=None, runid=None):
     cur.close()
     return res
 
-def get_most_recent_run(db_conn, new_runid, hostname=None):
+def most_recent_run(db_conn, new_runid, hostname=None):
     query = """
         select
             old_run.id,

@@ -15,14 +15,14 @@ bottle.install(sqlite)
 def show_regressions(db):
     cur_id = request.query.id
     regs = {}
-    cur_run = sql.views.get_runs(db, runid=cur_id)[0]
+    cur_run = sql.views.runs(db, runid=cur_id)[0]
     regs.setdefault('base_commit', cur_run)
 
     regs['against_arch'] = []
-    hosts = sql.views.get_run_hosts(db, arch=cur_run['arch'])
+    hosts = sql.views.run_hosts(db, arch=cur_run['arch'])
     
     for row in hosts:
-        run = sql.views.get_most_recent_run(db, cur_id, hostname=row['hostname'])[0]
+        run = sql.views.most_recent_run(db, cur_id, hostname=row['hostname'])[0]
         d = {'run': run, 'regressions':None}
         regressions = sql.views.regressions(db, cur_id, run['id'])
         if len(regressions) > 0:
@@ -33,7 +33,7 @@ def show_regressions(db):
 
 @route('/')
 def index(db):
-    runs = sql.views.get_runs(db, limit=10, order_by='run_date')
+    runs = sql.views.runs(db, limit=10, order_by='run_date')
     cols = runs[0].keys()
     res = []
     for r in runs:
@@ -49,7 +49,7 @@ def index(db):
         d.setdefault('regressions', 'Unknown')
         
         if d['tests_status'] == 'OK':
-            old_run = sql.views.get_most_recent_run(db, runid, hostname=d['hostname'])
+            old_run = sql.views.most_recent_run(db, runid, hostname=d['hostname'])
             if len(old_run)> 0:
                 regs = sql.views.regressions(db, runid, old_run[0]['id'])
                 if regs:
