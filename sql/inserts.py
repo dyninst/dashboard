@@ -2,8 +2,9 @@ def create_run(db_conn, properties):
     fields = [
         'arch', 'vendor', 'os', 'kernel',
         'libc', 'hostname', 'build_status',
-        'dyninst_commit', 'dyninst_branch',
-        'testsuite_commit', 'testsuite_branch'
+        'tests_status', 'dyninst_commit',
+        'dyninst_branch', 'testsuite_commit',
+        'testsuite_branch'
     ]
     values = [properties[k] for k in fields]
     

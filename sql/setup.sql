@@ -24,6 +24,7 @@
 --	"libc" TEXT,
 --	"hostname" TEXT,
 --	"build_status" TEXT,
+--	"tests_status" TEXT,
 --	"run_date" DATE,
 --	"upload_date" DATE,
 --	"dyninst_commit" TEXT,

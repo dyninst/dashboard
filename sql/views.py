@@ -10,6 +10,7 @@ def get_runs(db_conn, limit=None, order_by=None, runid=None):
             libc,
             hostname,
             build_status,
+            tests_status,
             datetime(run_date) as date,
             datetime(upload_date) as upload_date,
             dyninst_commit,
@@ -46,6 +47,7 @@ def get_most_recent_run(db_conn, new_runid, hostname=None):
             old_run.libc,
             old_run.hostname,
             old_run.build_status,
+            old_run.tests_status,
             datetime(old_run.run_date) as date,
             datetime(old_run.upload_date) as upload_date,
             old_run.dyninst_commit,
@@ -59,6 +61,8 @@ def get_most_recent_run(db_conn, new_runid, hostname=None):
         where
             cur_run.id = ?
             and old_run.run_date < cur_run.run_date
+            and old_run.build_status <> 'FAILED'
+            and old_run.tests_status <> 'FAILED'
         """
     
     if hostname is not None:

@@ -39,16 +39,22 @@ def index(db):
         d = dict(zip(cols,r))
         runid = r[0]
         d.setdefault('runid', runid)
-        d.setdefault('summary', get_result_summary(db, runid))
+        if d['tests_status'] == 'OK':
+            summary = get_result_summary(db, runid)
+        else:
+            summary = d['tests_status']
+        
+        d.setdefault('summary', summary)
         d.setdefault('regressions', 'Unknown')
         
-        old_run = sql.views.get_most_recent_run(db, runid, hostname=d['hostname'])
-        if len(old_run)> 0:
-            regs = sql.views.regressions(db, runid, old_run[0][0])
-            if regs:
-                d['regressions'] = str(len(regs))
-            else:
-                d['regressions'] = 'none'
+        if d['tests_status'] == 'OK':
+            old_run = sql.views.get_most_recent_run(db, runid, hostname=d['hostname'])
+            if len(old_run)> 0:
+                regs = sql.views.regressions(db, runid, old_run[0]['id'])
+                if regs:
+                    d['regressions'] = str(len(regs))
+                else:
+                    d['regressions'] = 'none'
         res.append(d)
     return template('runs', runs=res)
 
@@ -112,7 +118,7 @@ def process_upload(db):
                 raise HTTPError(500, body="Error creating run for {0:s}".format(user_file.filename))
             
             # Load the results into the database
-            if results['build_status'] == 'OK':
+            if results['build_status'] == 'OK' and results['tests_status'] == 'OK':
                 logfile_name = "{0:s}/testsuite/tests/results.log".format(root_dir)
                 try:
                     logfile = tar.extractfile(logfile_name)
