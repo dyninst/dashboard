@@ -76,8 +76,8 @@ def process_upload(db):
     # Save the uploaded file
     # NB: This needs to be done _before_ it is read from
     from uuid import uuid4
-    file_name = 'logs/' + str(uuid4()) + '.tar.gz'
-    user_file.save(file_name)
+    file_name = str(uuid4()) + '.tar.gz'
+    user_file.save('logs/' + file_name)
 
     try:
         with tarfile.open(fileobj=user_file.file, mode="r:gz") as tar:

@@ -14,6 +14,7 @@
 <th>Regressions</th>
 <th>Dyninst</th>
 <th>Testsuite</th>
+<th>Log Files</th>
 </tr>
 
 <%
@@ -54,6 +55,8 @@
 	
 	<td align="center">{{r['dyninst_branch'] + ' / ' + r['dyninst_commit'][0:7]}}</td>
 	<td align="center">{{r['testsuite_branch'] + ' / ' + r['testsuite_commit'][0:7]}}</td>
+	
+	<td align="center"><a href="logs/{{r['upload_file']}}">Download</a></td>
 	</tr>
 % end
 
