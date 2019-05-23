@@ -20,13 +20,10 @@ def show_regressions(db):
 
     # Get the regressions for the most recent run on the same host
     run = sql.views.get_most_recent_run(db, cur_id, hostname=cur_run['hostname'])[0]
-    regs.setdefault(
-        'against_host',
-        {
-            'run':run,
-            'regressions': sql.views.regressions(db, cur_id, run['id'])
-        }
-    )
+    regs['against_host'] = {
+        'run':run,
+        'regressions': sql.views.regressions(db, cur_id, run['id'])
+    }
 
     return template('regressions', regs=regs)
 
@@ -37,7 +34,7 @@ def index(db):
     res = []
     for r in runs:
         d = dict(zip(cols,r))
-        runid = r[0]
+        runid = r['id']
         d.setdefault('runid', runid)
         if d['tests_status'] == 'OK':
             summary = get_result_summary(db, runid)
