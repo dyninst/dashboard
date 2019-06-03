@@ -13,6 +13,7 @@
 		<th>libc</th>
 		<th>Dyninst</th>
 		<th>Testsuite</th>
+		<th>Log Files</th>
 	</tr>
 	<tr>
 		<td align="center">{{r['date']}}</td>
@@ -30,6 +31,7 @@
 %>
 		<td align="center">{{branch}}/<a href="{{link}}">{{commit[0:7]}}</a></td>
 %	end
+	<td align="center"><a href="logs/{{r['upload_file']}}">Download</a></td>
 	</tr>
 	</table>
 
@@ -47,6 +49,7 @@
 		<th>libc</th>
 		<th>Dyninst</th>
 		<th>Testsuite</th>
+		<th>Log Files</th>
 	</tr>
 	<tr>
 		<td align="center">{{r['hostname']}}</td>
@@ -64,6 +67,7 @@
 %>
 		<td align="center">{{branch}}/<a href="{{link}}">{{commit[0:7]}}</a></td>
 %	end
+	<td align="center"><a href="logs/{{r['upload_file']}}">Download</a></td>
 	</tr>
 	</table>
 <br>
