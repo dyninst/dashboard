@@ -49,7 +49,7 @@
 		<td align="center" bgcolor={{bgcolor}}>{{r['regressions']}}</td>
 % 	else:
 		<td align="center" bgcolor=#FA5858>
-			<a href="/regressions?id={{r['runid']}}">{{r['regressions']}}</a>
+			<a href="{{base_url}}/regressions?id={{r['runid']}}">{{r['regressions']}}</a>
 		</td>
 % 	end
 	
@@ -64,12 +64,12 @@
 %>
 		<td align="center">{{branch}}/<a href="{{link}}">{{commit[0:7]}}</a></td>
 %	end
-	<td align="center"><a href="logs/{{r['upload_file']}}">Download</a></td>
+	<td align="center"><a href="{{base_url}}/logs/{{r['upload_file']}}">Download</a></td>
 	</tr>
 % end
 </table>
 
 <br><br>
-<a href="/upload">Upload a new run</a>
+<a href="{{base_url}}/upload">Upload a new run</a>
 </body>
 </html>

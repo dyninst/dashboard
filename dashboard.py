@@ -29,7 +29,7 @@ def show_regressions(db):
             d['regressions'] = regressions
         regs['against_arch'].append(d)
 
-    return template('regressions', regs=regs)
+    return template('regressions', regs=regs, base_url=bottle.default_app().get_url('/'))
 
 @route('/')
 def index(db):
@@ -57,7 +57,7 @@ def index(db):
                 else:
                     d['regressions'] = 'none'
         res.append(d)
-    return template('runs', runs=res)
+    return template('runs', runs=res, base_url=bottle.default_app().get_url('/'))
 
 @route('/logs/<filename:path>')
 def download(filename):
@@ -65,7 +65,7 @@ def download(filename):
 
 @route('/upload')
 def show_upload_form():
-    return template('upload')
+    return template('upload', base_url=bottle.default_app().get_url('/'))
 
 @route('/upload', method='POST')
 def process_upload(db):
@@ -129,7 +129,7 @@ def process_upload(db):
                 except:
                     raise HTTPError(500, body="Error inserting results for {0:s}".format(user_file.filename))
         
-        return redirect('/')
+        return redirect(bottle.default_app().get_url('/'))
     
     except(tarfile.ReadError):
         from os import unlink
