@@ -8,14 +8,6 @@ Before running the server locally, you need to create a test database. Before pr
 	>  .read sql/setup.sql
 	>  .exit
  
-### Testing with Bottle's built-in server
-
-To run the server, you just execute the main Python file.
-
-	> python3 dashboard.py
-
-The site is then accessible as `http://localhost`.
-
 ### Testing with a local Apache server
 
 It is a good idea to test any changes with a local Apache server before handing off the distribution to a web administrator. To do that, you first need to install Apache2 and the Python3 version of the mod_wsgi package. Under Ubuntu, you can do this with
