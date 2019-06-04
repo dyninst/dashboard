@@ -34,29 +34,30 @@ def show_regressions(db):
 @route('/')
 def index(db):
     runs = sql.views.runs(db, limit=10, order_by='run_date')
-    cols = runs[0].keys()
     res = []
-    for r in runs:
-        d = dict(zip(cols,r))
-        runid = r['id']
-        d.setdefault('runid', runid)
-        if d['tests_status'] == 'OK':
-            summary = get_result_summary(db, runid)
-        else:
-            summary = d['tests_status']
-        
-        d.setdefault('summary', summary)
-        d.setdefault('regressions', 'Unknown')
-        
-        if d['tests_status'] == 'OK':
-            old_run = sql.views.most_recent_run(db, runid, hostname=d['hostname'])
-            if len(old_run)> 0:
-                regs = sql.views.regressions(db, runid, old_run[0]['id'])
-                if regs:
-                    d['regressions'] = str(len(regs))
-                else:
-                    d['regressions'] = 'none'
-        res.append(d)
+    if len(runs) > 0:
+        cols = runs[0].keys()
+        for r in runs:
+            d = dict(zip(cols,r))
+            runid = r['id']
+            d.setdefault('runid', runid)
+            if d['tests_status'] == 'OK':
+                summary = get_result_summary(db, runid)
+            else:
+                summary = d['tests_status']
+            
+            d.setdefault('summary', summary)
+            d.setdefault('regressions', 'Unknown')
+            
+            if d['tests_status'] == 'OK':
+                old_run = sql.views.most_recent_run(db, runid, hostname=d['hostname'])
+                if len(old_run)> 0:
+                    regs = sql.views.regressions(db, runid, old_run[0]['id'])
+                    if regs:
+                        d['regressions'] = str(len(regs))
+                    else:
+                        d['regressions'] = 'none'
+            res.append(d)
     return template('runs', runs=res, base_url=bottle.default_app().get_url('/'))
 
 @route('/logs/<filename:path>')
