@@ -26,6 +26,13 @@ Next, create a virtual host by copying (as root) the `dashboard.conf` file to `/
 
 Next, activate the virtual host: `sudo a2ensite dashboard`.
 
+Next, set the file permissions to the Apache web user group (usually `www-data`).
+
+	> sudo chgrp www-data .
+	> sudo chgrp www-data logs
+	> sudo chgrp www-data results.sqlite3
+	> chmod 0664 results.sqlite3
+
 Finally, restart the Apache server: `sudo service apache2 restart`.
 
 The site is then accessible as `http://localhost/dashboard`.
