@@ -1,14 +1,8 @@
 import sys
 import bottle
 import regressions
-from bottle import route, run, request, HTTPError, template, static_file, redirect
-import tarfile
-from io import TextIOWrapper
-import log_files
-import sql.inserts
-import sql.views
+import runs
 from sql.bottle_sqlite import SQLitePlugin
-import csv
 
 sqlite = SQLitePlugin(dbfile="results.sqlite3")
 bottle.install(sqlite)
@@ -27,133 +21,34 @@ def show_regressions(db):
 
     return bottle.template('regressions', regs=regs, base_url=base_url)
 
-@route('/')
+@bottle.route('/')
 def index(db):
-    runs = sql.views.runs(db, limit=10, order_by='run_date')
-    res = []
-    if len(runs) > 0:
-        cols = runs[0].keys()
-        for r in runs:
-            d = dict(zip(cols,r))
-            runid = r['id']
-            d.setdefault('runid', runid)
-            if d['tests_status'] == 'OK':
-                summary = get_result_summary(db, runid)
-            else:
-                summary = d['tests_status']
-            
-            d.setdefault('summary', summary)
-            d.setdefault('regressions', 'Unknown')
-            
-            if d['tests_status'] == 'OK':
-                old_run = sql.views.most_recent_run(db, runid, hostname=d['hostname'])
-                if len(old_run)> 0:
-                    regs = sql.views.regressions(db, runid, old_run[0]['id'])
-                    if regs:
-                        d['regressions'] = str(len(regs))
-                    else:
-                        d['regressions'] = 'none'
-            res.append(d)
-    return template('runs', runs=res, base_url=base_url)
-
-@route('/logs/<filename:path>')
-def download(filename):
-    return static_file(filename, root='logs/', download=filename)
-
-@route('/upload')
-def show_upload_form():
-    return template('upload', base_url=base_url)
-
-@route('/upload', method='POST')
-def process_upload(db):
-    user_file = request.files.get('upload')
-    
-    if user_file is None:
-        raise HTTPError(500, body="Uploaded file is not valid")
-
-    # Save the uploaded file
-    # NB: This needs to be done _before_ it is read from
-    from uuid import uuid4
-    file_name = str(uuid4()) + '.tar.gz'
-    user_file.save('logs/' + file_name)
-
     try:
-        with tarfile.open(fileobj=user_file.file, mode="r:gz") as tar:
-            files = [m.name for m in tar.getmembers()]
-            
-            if "build.log" not in files:
-                raise HTTPError(500, body="No build.log in {0:s}".format(user_file.filename))
-    
-            logfile = tar.extractfile("build.log")
-            results = log_files.read_properties(TextIOWrapper(logfile, encoding='utf-8'))
-            
-            # Split the architecture and vendor names
-            arch, vendor = results['arch'].split('/', 1)
-            results['arch'] = arch
-            results.setdefault('vendor', vendor)
-            
-            results['user_file'] = file_name
-    
-            root_dir = results['root_dir']
-            
-            for t in ('build','tests'):
-                if "{0:s}/{1:s}.FAILED".format(root_dir, t.title()) in files:
-                    results['{0:s}_status'.format(t)] = 'FAILED'
-                else:
-                    results['{0:s}_status'.format(t)] = 'OK'
-            
-            # Read the git branches and commits
-            results.update(log_files.read_git_logs(tar, root_dir, files))
-            
-            # There may be a trailing period in the UTC date
-            # Sqlite doesn't like that, so remove it
-            results['date'] = results['date'].replace('.', '')
-
-            # Save the run information
-            try:
-                runid = sql.inserts.create_run(db, results)
-            except:
-                raise HTTPError(500, body="Error creating run for {0:s}".format(user_file.filename))
-            
-            # Load the results into the database
-            if results['build_status'] == 'OK' and results['tests_status'] == 'OK':
-                logfile_name = "{0:s}/testsuite/tests/results.log".format(root_dir)
-                try:
-                    logfile = tar.extractfile(logfile_name)
-                    reader = csv.reader(TextIOWrapper(logfile, encoding='utf-8'))
-                    next(reader) # skip the header
-                    sql.inserts.save_results(db, runid, reader)
-                except:
-                    raise HTTPError(500, body="Error inserting results for {0:s}".format(user_file.filename))
-        
-        return redirect(bottle.default_app().get_url('/'))
-    
-    except(tarfile.ReadError):
-        from os import unlink
-        unlink(file_name)
-        raise HTTPError(500, body="'{0:s}' is not a valid tarfile".format(user_file.filename))
-
-def get_result_summary(db, runid):
-    try:                    
-        summary = {}
-        summary.setdefault('TOTAL', 0)
-        for k,v in sql.views.results_summary(db, runid):
-            summary.setdefault(k, v)
-            summary['TOTAL'] += v
+        res = runs.most_recent(db)
     except:
-        raise HTTPError(500, body="Error creating summary")
+        e = sys.exc_info()[0]
+        bottle.HTTPError(500, 'Error getting runs: {0:s}'.format(e))
 
-    if summary['TOTAL'] > 0:
-        return \
-            str(summary['PASSED'])  + '/' + \
-            str(summary['FAILED'])  + '/' + \
-            str(summary['SKIPPED']) + '/' + \
-            str(summary['CRASHED']) + '  (' + \
-            str(summary['TOTAL'])   + ')'
-    else:
-        return 'Unknown'
+    return bottle.template('runs', runs=res, base_url=base_url)
+
+@bottle.route('/logs/<filename:path>')
+def download(filename):
+    return bottle.static_file(filename, root='logs/', download=filename)
+
+@bottle.route('/upload')
+def show_upload_form():
+    return bottle.template('upload', base_url=base_url)
+
+@bottle.route('/upload', method='POST')
+def process_upload(db):
+    user_file = bottle.request.files.get('upload')
+    try:
+        runs.upload(db, user_file)
+    except:
+        e = sys.exc_info()[0]
+        bottle.HTTPError(500, 'Error processing upload: {0:s}'.format(e))
     
-    return summary
+    return bottle.redirect(base_url)
 
 if __name__ == '__main__':
     bottle.run(host='localhost', port=8080)
