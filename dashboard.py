@@ -16,9 +16,8 @@ def show_regressions(db):
     try:
         regs = regressions.by_host(db, cur_id)
     except:
-        e = sys.exc_info()[0]
-        bottle.HTTPError(500, 'Error calculating regressions: {0:s}'.format(e))
-
+        msg = str(sys.exc_info()[1])
+        raise bottle.HTTPError(500, 'Error calculating regressions: {0:s}'.format(msg))
     return bottle.template('regressions', regs=regs, base_url=base_url)
 
 @bottle.route('/')
@@ -26,8 +25,8 @@ def index(db):
     try:
         res = runs.most_recent(db)
     except:
-        e = sys.exc_info()[0]
-        bottle.HTTPError(500, 'Error getting runs: {0:s}'.format(e))
+        msg = str(sys.exc_info()[1])
+        raise bottle.HTTPError(500, 'Error getting runs: {0:s}'.format(msg))
 
     return bottle.template('runs', runs=res, base_url=base_url)
 
@@ -45,8 +44,8 @@ def process_upload(db):
     try:
         runs.upload(db, user_file)
     except:
-        e = sys.exc_info()[0]
-        bottle.HTTPError(500, 'Error processing upload: {0:s}'.format(e))
+        msg = str(sys.exc_info()[1])
+        raise bottle.HTTPError(500, 'Error processing upload: {0:s}'.format(msg))
     
     return bottle.redirect(base_url)
 
