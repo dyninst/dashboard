@@ -1,4 +1,6 @@
+import sys
 import bottle
+import regressions
 from bottle import route, run, request, HTTPError, template, static_file, redirect
 import tarfile
 from io import TextIOWrapper
@@ -14,25 +16,16 @@ bottle.install(sqlite)
 # This is here to allow running under the built-in bottle server
 base_url = ''
 
-@route('/regressions')
+@bottle.route('/regressions')
 def show_regressions(db):
-    cur_id = request.query.id
-    regs = {}
-    cur_run = sql.views.runs(db, runid=cur_id)[0]
-    regs.setdefault('base_commit', cur_run)
+    cur_id = bottle.request.query.id
+    try:
+        regs = regressions.by_host(db, cur_id)
+    except:
+        e = sys.exc_info()[0]
+        bottle.HTTPError(500, 'Error calculating regressions: {0:s}'.format(e))
 
-    regs['against_arch'] = []
-    hosts = sql.views.run_hosts(db, arch=cur_run['arch'])
-    
-    for row in hosts:
-        run = sql.views.most_recent_run(db, cur_id, hostname=row['hostname'])[0]
-        d = {'run': run, 'regressions':None}
-        regressions = sql.views.regressions(db, cur_id, run['id'])
-        if len(regressions) > 0:
-            d['regressions'] = regressions
-        regs['against_arch'].append(d)
-
-    return template('regressions', regs=regs, base_url=base_url)
+    return bottle.template('regressions', regs=regs, base_url=base_url)
 
 @route('/')
 def index(db):
