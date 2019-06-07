@@ -1,6 +1,6 @@
 import sql.views
 
-def by_host(db, cur_id):
+def by_arch(db, cur_id):
     """
         Compare the run specified by `cur_id` against the most
         recent run on the same host
