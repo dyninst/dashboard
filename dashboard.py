@@ -11,6 +11,9 @@ import csv
 sqlite = SQLitePlugin(dbfile="results.sqlite3")
 bottle.install(sqlite)
 
+# This is here to allow running under the built-in bottle server
+base_url = ''
+
 @route('/regressions')
 def show_regressions(db):
     cur_id = request.query.id
@@ -29,7 +32,7 @@ def show_regressions(db):
             d['regressions'] = regressions
         regs['against_arch'].append(d)
 
-    return template('regressions', regs=regs, base_url=bottle.default_app().get_url('/'))
+    return template('regressions', regs=regs, base_url=base_url)
 
 @route('/')
 def index(db):
@@ -58,7 +61,7 @@ def index(db):
                     else:
                         d['regressions'] = 'none'
             res.append(d)
-    return template('runs', runs=res, base_url=bottle.default_app().get_url('/'))
+    return template('runs', runs=res, base_url=base_url)
 
 @route('/logs/<filename:path>')
 def download(filename):
@@ -66,7 +69,7 @@ def download(filename):
 
 @route('/upload')
 def show_upload_form():
-    return template('upload', base_url=bottle.default_app().get_url('/'))
+    return template('upload', base_url=base_url)
 
 @route('/upload', method='POST')
 def process_upload(db):
@@ -160,4 +163,6 @@ def get_result_summary(db, runid):
     return summary
 
 if __name__ == '__main__':
-    run(host='localhost', port=8080)
+    bottle.run(host='localhost', port=8080)
+else:
+    base_url = bottle.default_app().get_url('/')
