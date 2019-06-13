@@ -1,23 +1,22 @@
-import sql.views
+import sql.views.regressions
 
 def by_arch(db, cur_id):
     """
         Compare the run specified by `cur_id` against the most
-        recent run on the same host
+        recent runs on the same architecture
     """
     regs = {}
-    cur_run = sql.views.runs(db, runid=cur_id)[0]
+    cur_run = sql.views.runs.runs(db, runid=cur_id)[0]
     regs.setdefault('base_commit', cur_run)
     
-    regs['against_arch'] = []
-    hosts = sql.views.run_hosts(db, arch=cur_run['arch'])
+    regs['results'] = []
+    prev_runs = sql.views.runs.most_recent_runs_by_arch(db, cur_id)
     
-    for row in hosts:
-        run = sql.views.most_recent_run(db, cur_id, hostname=row['hostname'])[0]
-        d = {'run': run, 'regressions':None}
-        regressions = sql.views.regressions(db, cur_id, run['id'])
+    for r in prev_runs:
+        d = {'run': r, 'regressions':None}
+        regressions = sql.views.regressions.by_arch(db, cur_id, r['id'])
         if len(regressions) > 0:
             d['regressions'] = regressions
-        regs['against_arch'].append(d)
+        regs['results'].append(d)
     
     return regs

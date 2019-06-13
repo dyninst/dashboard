@@ -1,23 +1,3 @@
-def run_hosts(db_conn, arch=None):
-    query = """
-        select
-            distinct hostname
-        from
-            run
-        where
-            1=1
-    """
-    
-    if arch is not None:
-        query += " and arch = ? "
-    
-    cur = db_conn.cursor();
-    params = [arch]
-    cur.execute(query, [p for p in params if p is not None])
-    res = cur.fetchall()
-    cur.close()
-    return res
-
 def runs(db_conn, limit=None, order_by=None, runid=None):
     query = """
         select
@@ -55,52 +35,6 @@ def runs(db_conn, limit=None, order_by=None, runid=None):
     cur.close()
     return res
 
-def most_recent_run(db_conn, new_runid, hostname=None):
-    query = """
-        select
-            old_run.id,
-            old_run.arch,
-            old_run.vendor,
-            old_run.os,
-            old_run.kernel,
-            old_run.kernel_version,
-            old_run.libc,
-            old_run.hostname,
-            old_run.build_status,
-            old_run.tests_status,
-            datetime(old_run.run_date) as date,
-            datetime(old_run.upload_date) as upload_date,
-            old_run.dyninst_commit,
-            old_run.dyninst_branch,
-            old_run.testsuite_commit,
-            old_run.testsuite_branch,
-            old_run.upload_file
-        from
-            run as cur_run,
-            run as old_run
-        where
-            cur_run.id = ?
-            and old_run.run_date < cur_run.run_date
-            and old_run.build_status <> 'FAILED'
-            and old_run.tests_status <> 'FAILED'
-        """
-    
-    if hostname is not None:
-        query += " and old_run.hostname = ? "
-
-    query += """
-        order by
-            old_run.run_date desc,
-            old_run.upload_date desc
-        limit 1
-    """
-    cur = db_conn.cursor()
-    params = [new_runid, hostname]
-    cur.execute(query, [p for p in params if p is not None])
-    res = cur.fetchall()
-    cur.close()
-    return res
-    
 def results_summary(db_conn, runid):
     query = """
         select
@@ -114,6 +48,81 @@ def results_summary(db_conn, runid):
         """
     cur = db_conn.cursor()
     cur.execute(query, [str(runid)])
+    res = cur.fetchall()
+    cur.close()
+    return res
+
+def _create_most_recent_table(db, runid):
+    """
+        !!! Internal use only !!!
+        
+        Select the most recent run on every host,
+        except the one specified by 'runid',
+        with the same architecture as the run
+        the one specified by 'runid'
+    """
+    query = """
+        create temporary table most_recent as
+        select
+            run.id id
+        from
+            run
+            join run as excluded_run on
+                excluded_run.id = ?
+        where
+            run.tests_status <> 'FAILED'
+            and run.build_status <> 'FAILED'
+            and run.id <> excluded_run.id
+            and run.arch = excluded_run.arch
+        group by
+            run.arch,
+            run.hostname
+        having
+            run.run_date = max(run.run_date);
+    """
+
+    cur = db.cursor()
+    cur.execute("drop table if exists most_recent;")
+    cur.execute(query, [str(runid)])
+    cur.close()
+
+def most_recent_runs_by_arch(db, exclude_run):
+    query = """
+        select
+            run.id,
+            run.arch,
+            run.vendor,
+            run.os,
+            run.kernel,
+            run.kernel_version,
+            run.libc,
+            run.hostname,
+            run.build_status,
+            run.tests_status,
+            datetime(run.run_date) as date,
+            datetime(run.upload_date) as upload_date,
+            run.dyninst_commit,
+            run.dyninst_branch,
+            run.testsuite_commit,
+            run.testsuite_branch,
+            run.upload_file
+        from
+            run
+            join run as excluded_run on
+                excluded_run.id = ?
+        where
+            run.tests_status <> 'FAILED'
+            and run.build_status <> 'FAILED'
+            and run.id <> excluded_run.id
+            and run.arch = excluded_run.arch
+        group by
+            run.hostname
+        having
+            run.run_date = max(run.run_date);
+        """
+    
+    cur = db.cursor()
+    cur.execute(query, [str(exclude_run)])
     res = cur.fetchall()
     cur.close()
     return res

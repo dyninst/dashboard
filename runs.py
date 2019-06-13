@@ -1,5 +1,6 @@
 import sys
-import sql.views
+import sql.views.runs
+import sql.views.regressions
 import sql.inserts
 import io
 import log_files
@@ -7,7 +8,7 @@ import tarfile
 import csv
 
 def most_recent(db):
-    runs = sql.views.runs(db, limit=10, order_by='run_date')
+    runs = sql.views.runs.runs(db, limit=10, order_by='run_date')
     res = []
     if len(runs) > 0:
         cols = runs[0].keys()
@@ -24,13 +25,9 @@ def most_recent(db):
             d.setdefault('regressions', 'Unknown')
             
             if d['tests_status'] == 'OK':
-                old_run = sql.views.most_recent_run(db, runid, hostname=d['hostname'])
-                if len(old_run)> 0:
-                    regs = sql.views.regressions(db, runid, old_run[0]['id'])
-                    if regs:
-                        d['regressions'] = str(len(regs))
-                    else:
-                        d['regressions'] = 'none'
+                d['regressions'] = sql.views.regressions.counts(db, runid)
+                if d['regressions'] == 0:
+                    d['regressions'] = 'none'
             res.append(d)
     return res
 
@@ -38,7 +35,7 @@ def _result_summary(db, runid):
     try:                    
         summary = {}
         summary.setdefault('TOTAL', 0)
-        for k,v in sql.views.results_summary(db, runid):
+        for k,v in sql.views.runs.results_summary(db, runid):
             summary.setdefault(k, v)
             summary['TOTAL'] += v
     except:
