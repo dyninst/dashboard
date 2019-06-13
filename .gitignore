@@ -11,3 +11,5 @@ logs/
 
 # sqlite
 *.sqlite3
+
+sql/views.sql
