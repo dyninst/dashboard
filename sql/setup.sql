@@ -49,3 +49,24 @@ create table test_result(
 	"reason" TEXT,
 	FOREIGN KEY(runid) references run(id)
 );
+
+create view run_v as
+select
+    id,
+    arch,
+    vendor,
+    os,
+    kernel,
+    kernel_version,
+    libc,
+    hostname,
+    build_status,
+    tests_status,
+    datetime(run_date) as date,
+    datetime(upload_date) as upload_date,
+    dyninst_commit,
+    dyninst_branch,
+    testsuite_commit,
+    testsuite_branch,
+    upload_file
+from run;

@@ -1,24 +1,8 @@
 def runs(db_conn, limit=None, order_by=None, runid=None):
     query = """
         select
-            id,
-            arch,
-            vendor,
-            os,
-            kernel,
-            kernel_version,
-            libc,
-            hostname,
-            build_status,
-            tests_status,
-            datetime(run_date) as date,
-            datetime(upload_date) as upload_date,
-            dyninst_commit,
-            dyninst_branch,
-            testsuite_commit,
-            testsuite_branch,
-            upload_file
-        from run
+            run_v.*
+        from run_v
         where 1=1 """
     
     if runid is not None:
@@ -90,29 +74,13 @@ def _create_most_recent_table(db, runid):
 def most_recent_runs_by_arch(db, exclude_run):
     query = """
         select
-            run.id,
-            run.arch,
-            run.vendor,
-            run.os,
-            run.kernel,
-            run.kernel_version,
-            run.libc,
-            run.hostname,
-            run.build_status,
-            run.tests_status,
-            datetime(run.run_date) as date,
-            datetime(run.upload_date) as upload_date,
-            run.dyninst_commit,
-            run.dyninst_branch,
-            run.testsuite_commit,
-            run.testsuite_branch,
-            run.upload_file
+            run_v.*
         from
-            run
+            run_v
             join most_recent on
-                most_recent.id = run.id
+                most_recent.id = run_v.id
         group by
-            run.hostname
+            run_v.hostname
         """
     _create_most_recent_table(db, exclude_run)
     cur = db.cursor()

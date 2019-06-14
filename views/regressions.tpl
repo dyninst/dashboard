@@ -21,7 +21,7 @@
 		<th>Log Files</th>
 	</tr>
 	<tr>
-		<td align="center">{{regs['base_commit']['date']}}</td>
+		<td align="center">{{regs['base_commit']['run_date']}}</td>
 		<td align="center">{{regs['base_commit']['arch']}}/{{regs['base_commit']['vendor']}}</td>
 		<td align="center">{{regs['base_commit']['hostname']}}</td>
 		<td align="center">{{regs['base_commit']['libc']}}</td>
@@ -59,7 +59,7 @@
 		</tr>
 		<tr>
 			<td align="center">{{res['run']['hostname']}}</td>
-			<td align="center">{{res['run']['date']}}</td>
+			<td align="center">{{res['run']['run_date']}}</td>
 			<td align="center">{{res['run']['vendor']}}</td>
 			<td align="center">{{res['run']['libc']}}</td>
 			<% for t in ('dyninst','testsuite'):

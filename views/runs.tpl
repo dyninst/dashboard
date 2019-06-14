@@ -32,7 +32,7 @@
 	
 	% for r in runs:
 		<tr>
-		<td align="center">{{r['date']}}</td>
+		<td align="center">{{r['run_date']}}</td>
 		<td align="center">{{r['arch']}}/{{r['vendor']}}</td>
 		<td align="center">{{r['hostname']}}</td>
 		<td align="center">{{r['libc']}}</td>
