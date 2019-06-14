@@ -8,7 +8,7 @@ import tarfile
 import csv
 
 def most_recent(db):
-    runs = sql.views.runs.runs(db, limit=10, order_by='run_date')
+    runs = sql.views.runs.runs(db, limit=20, order_by='run_date')
     res = []
     if len(runs) > 0:
         cols = runs[0].keys()
