@@ -111,7 +111,7 @@ def upload(db, user_file):
                     next(reader) # skip the header
                     sql.inserts.save_results(db, runid, reader)
                 except:
-                    e = sys.exc_info()[0]
+                    e = str(sys.exc_info()[0])
                     raise "Error inserting results: {0:s}".format(e)
     except(tarfile.ReadError):
         from os import unlink
