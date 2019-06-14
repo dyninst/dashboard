@@ -79,14 +79,17 @@ def upload(db, user_file):
             results.setdefault('vendor', vendor)
             
             results['user_file'] = file_name
-    
+
+            # Determine the status of the builds
             root_dir = results['root_dir']
-            
+            results_log_filename = "{0:s}/testsuite/tests/results.log".format(root_dir)
             for t in ('build','tests'):
                 if "{0:s}/{1:s}.FAILED".format(root_dir, t.title()) in files:
                     results['{0:s}_status'.format(t)] = 'FAILED'
-                else:
+                elif t == 'build' or (t == 'tests' and results_log_filename in files):
                     results['{0:s}_status'.format(t)] = 'OK'
+                else:
+                    results['{0:s}_status'.format(t)] = 'Unknown'
             
             # Read the git branches and commits
             results.update(log_files.read_git_logs(tar, root_dir, files))
@@ -104,9 +107,8 @@ def upload(db, user_file):
             
             # Load the results into the database
             if results['build_status'] == 'OK' and results['tests_status'] == 'OK':
-                logfile_name = "{0:s}/testsuite/tests/results.log".format(root_dir)
                 try:
-                    logfile = tar.extractfile(logfile_name)
+                    logfile = tar.extractfile(results_log_filename)
                     reader = csv.reader(io.TextIOWrapper(logfile, encoding='utf-8'))
                     next(reader) # skip the header
                     sql.inserts.save_results(db, runid, reader)
