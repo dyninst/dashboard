@@ -109,21 +109,14 @@ def most_recent_runs_by_arch(db, exclude_run):
             run.upload_file
         from
             run
-            join run as excluded_run on
-                excluded_run.id = ?
-        where
-            run.tests_status <> 'FAILED'
-            and run.build_status <> 'FAILED'
-            and run.id <> excluded_run.id
-            and run.arch = excluded_run.arch
+            join most_recent on
+                most_recent.id = run.id
         group by
             run.hostname
-        having
-            run.run_date = max(run.run_date);
         """
-    
+    _create_most_recent_table(db, exclude_run)
     cur = db.cursor()
-    cur.execute(query, [str(exclude_run)])
+    cur.execute(query)
     res = cur.fetchall()
     cur.close()
     return res
