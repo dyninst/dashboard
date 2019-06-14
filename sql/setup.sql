@@ -62,7 +62,7 @@ select
     hostname,
     build_status,
     tests_status,
-    datetime(run_date) as date,
+    datetime(run_date) as run_date,
     datetime(upload_date) as upload_date,
     dyninst_commit,
     dyninst_branch,
