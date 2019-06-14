@@ -74,6 +74,7 @@ def _create_most_recent_table(db, runid):
             and run.build_status <> 'FAILED'
             and run.id <> excluded_run.id
             and run.arch = excluded_run.arch
+            and run.run_date < excluded_run.run_date
         group by
             run.arch,
             run.hostname
