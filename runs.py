@@ -16,11 +16,20 @@ def most_recent(db):
             d = dict(zip(cols,r))
             runid = r['id']
             d.setdefault('runid', runid)
-            if d['tests_status'] == 'OK':
-                summary = test_results.summary(db, runid)
-            else:
-                summary = d['tests_status']
+            summary = d['tests_status']
             
+            if d['tests_status'] == 'OK':
+                res_summary = test_results.summary(db, runid)
+                if res_summary['TOTAL'] > 0:
+                    summary = \
+                        str(res_summary['PASSED'])  + '/' + \
+                        str(res_summary['FAILED'])  + '/' + \
+                        str(res_summary['SKIPPED']) + '/' + \
+                        str(res_summary['CRASHED']) + '  (' + \
+                        str(res_summary['TOTAL'])   + ')'
+                else:
+                    summary = 'Unknown'
+
             d.setdefault('summary', summary)
             d.setdefault('regressions', 'Unknown')
             
