@@ -1,4 +1,4 @@
-import sql.views.runs
+import sql.runs
 
 def counts(db, runid):
     query = """
@@ -28,7 +28,7 @@ def counts(db, runid):
             and prev_run.run_date < cur_run.run_date
     """
     
-    sql.views.runs._create_most_recent_table(db, runid)
+    sql.runs._create_most_recent_table(db, runid)
     
     cur = db.cursor()
     cur.execute(query, [str(runid)])
@@ -40,7 +40,7 @@ def by_arch(db_conn, cur_runid, prev_runid):
     """
         For the run given by `runid`, select all
         hosts of its same architecture against which
-        its test results cause regressions
+        its test test_results cause regressions
     """
     query = """
         select

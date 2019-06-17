@@ -1,14 +1,14 @@
 import sys
-import sql.views.runs
-import sql.views.regressions
-import sql.inserts
+import sql.runs
+import sql.regressions
+import test_results
 import io
 import log_files
 import tarfile
 import csv
 
 def most_recent(db):
-    runs = sql.views.runs.runs(db, limit=20, order_by='run_date')
+    runs = sql.runs.get(db, limit=20, order_by='run_date')
     res = []
     if len(runs) > 0:
         cols = runs[0].keys()
@@ -17,7 +17,7 @@ def most_recent(db):
             runid = r['id']
             d.setdefault('runid', runid)
             if d['tests_status'] == 'OK':
-                summary = _result_summary(db, runid)
+                summary = test_results.summary(db, runid)
             else:
                 summary = d['tests_status']
             
@@ -25,33 +25,11 @@ def most_recent(db):
             d.setdefault('regressions', 'Unknown')
             
             if d['tests_status'] == 'OK':
-                d['regressions'] = sql.views.regressions.counts(db, runid)
+                d['regressions'] = sql.regressions.counts(db, runid)
                 if d['regressions'] == 0:
                     d['regressions'] = 'none'
             res.append(d)
     return res
-
-def _result_summary(db, runid):
-    try:                    
-        summary = {}
-        summary.setdefault('TOTAL', 0)
-        for k,v in sql.views.runs.results_summary(db, runid):
-            summary.setdefault(k, v)
-            summary['TOTAL'] += v
-    except:
-        raise "Error creating summary"
-
-    if summary['TOTAL'] > 0:
-        return \
-            str(summary['PASSED'])  + '/' + \
-            str(summary['FAILED'])  + '/' + \
-            str(summary['SKIPPED']) + '/' + \
-            str(summary['CRASHED']) + '  (' + \
-            str(summary['TOTAL'])   + ')'
-    else:
-        return 'Unknown'
-    
-    return summary
 
 def upload(db, user_file):
     if user_file is None:
@@ -82,7 +60,7 @@ def upload(db, user_file):
 
             # Determine the status of the builds
             root_dir = results['root_dir']
-            results_log_filename = "{0:s}/testsuite/tests/results.log".format(root_dir)
+            results_log_filename = "{0:s}/testsuite/tests/test_results.log".format(root_dir)
             for t in ('build','tests'):
                 if "{0:s}/{1:s}.FAILED".format(root_dir, t.title()) in files:
                     results['{0:s}_status'.format(t)] = 'FAILED'
@@ -100,7 +78,7 @@ def upload(db, user_file):
 
             # Save the run information
             try:
-                runid = sql.inserts.create_run(db, results)
+                runid = sql.runs.create(db, results)
             except:
                 e = sys.exc_info()[0]
                 raise "Error creating run: {0:s}".format(e)
@@ -111,10 +89,10 @@ def upload(db, user_file):
                     logfile = tar.extractfile(results_log_filename)
                     reader = csv.reader(io.TextIOWrapper(logfile, encoding='utf-8'))
                     next(reader) # skip the header
-                    sql.inserts.save_results(db, runid, reader)
+                    sql.test_results.bulk_insert(db, runid, reader)
                 except:
                     e = str(sys.exc_info()[0])
-                    raise "Error inserting results: {0:s}".format(e)
+                    raise "Error inserting test_results: {0:s}".format(e)
     except(tarfile.ReadError):
         from os import unlink
         unlink(file_name)

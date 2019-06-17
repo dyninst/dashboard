@@ -1,4 +1,33 @@
-def runs(db_conn, limit=None, order_by=None, runid=None):
+def create(db_conn, properties):
+    fields = [
+        'arch', 'vendor', 'os', 'kernel',
+        'libc', 'hostname', 'build_status',
+        'tests_status', 'dyninst_commit',
+        'dyninst_branch', 'testsuite_commit',
+        'testsuite_branch'
+    ]
+    values = [properties[k] for k in fields]
+    
+    fields.append('kernel_version')
+    values.append(properties['version'])
+    
+    fields.append('upload_file')
+    values.append(properties['user_file'])
+    
+    fields.append('run_date')
+    values.append(properties['date'])
+
+    # datetime is UTC
+    query = "INSERT INTO run({0:s},upload_date) VALUES ({1:s},datetime('now'))"
+    query = query.format(','.join(fields),','.join(['?']*len(values)))
+    cur = db_conn.cursor()
+    cur.execute(query, values)
+    db_conn.commit()
+    rowid = cur.lastrowid
+    cur.close()
+    return rowid
+
+def get(db_conn, limit=None, order_by=None, runid=None):
     query = """
         select
             run_v.*
@@ -15,23 +44,6 @@ def runs(db_conn, limit=None, order_by=None, runid=None):
     params = [runid]
     cur = db_conn.cursor()
     cur.execute(query, [p for p in params if p is not None])
-    res = cur.fetchall()
-    cur.close()
-    return res
-
-def results_summary(db_conn, runid):
-    query = """
-        select
-            status.name as result,
-            sum(case when test.result is null then 0 else 1 end) as cnt
-        from status
-        left outer join test_result as test on
-            test.result = status.name
-            and test.runid = ?
-        group by status.name
-        """
-    cur = db_conn.cursor()
-    cur.execute(query, [str(runid)])
     res = cur.fetchall()
     cur.close()
     return res
@@ -71,7 +83,7 @@ def _create_most_recent_table(db, runid):
     cur.execute(query, [str(runid)])
     cur.close()
 
-def most_recent_runs_by_arch(db, exclude_run):
+def most_recent_by_arch(db, exclude_run):
     query = """
         select
             run_v.*

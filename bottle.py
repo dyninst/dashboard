@@ -701,7 +701,7 @@ class Bottle(object):
             return True
 
     def trigger_hook(self, __name, *args, **kwargs):
-        """ Trigger a hook and return a list of results. """
+        """ Trigger a hook and return a list of test_results. """
         return [hook(*args, **kwargs) for hook in self._hooks[__name][:]]
 
     def hook(self, name):
@@ -1423,7 +1423,7 @@ class BaseRequest(object):
     def url(self):
         """ The full request URI including hostname and scheme. If your app
             lives behind a reverse proxy or load balancer and you get confusing
-            results, make sure that the ``X-Forwarded-Host`` header is set
+            test_results, make sure that the ``X-Forwarded-Host`` header is set
             correctly. """
         return self.urlparts.geturl()
 
@@ -3002,7 +3002,7 @@ _hsplit = re.compile('(?:(?:"((?:[^"\\\\]+|\\\\.)*)")|([^;,=]+))([;,=]?)').finda
 
 def _parse_http_header(h):
     """ Parses a typical multi-valued and parametrised HTTP header (e.g. Accept headers) and returns a list of values
-        and parameters. For non-standard or broken input, this implementation may return partial results.
+        and parameters. For non-standard or broken input, this implementation may return partial test_results.
     :param h: A header string (e.g. ``text/html,text/plain;q=0.9,*/*;q=0.8``)
     :return: List of (value, params) tuples. The second element is a (possibly empty) dict.
     """
