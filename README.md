@@ -36,9 +36,3 @@ Next, set the file permissions to the Apache web user group (usually `www-data`)
 Finally, restart the Apache server: `sudo service apache2 restart`.
 
 The site is then accessible as `http://localhost/dashboard`.
-
-## Creating a distribution tarball
-
-To create the distribution tarball (`dashboard.tar.gz`), run `make_dist.sh` in the source directory. When creating a brand new website, pass the `--init` option to `make_dist.sh`. This will include the `results.sqlite3` database file in the distribution. Of course, you will want to ensure that the database is empty (see instructions above for how to create an empty database).
-
-Once complete, send this file to your web admin for installation.
