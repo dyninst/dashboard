@@ -38,7 +38,7 @@
 			<td align="center">{{branch}}/<a href="{{link}}">{{commit[0:7]}}</a></td>
 	% end
 	
-		<td align="center"><a href="{{base_url + '/logs/' + regs['base_commit']['upload_file']}}">Download</a></td>
+		<td align="center"><a href="{{ url('/logs') + '/' + regs['base_commit']['upload_file'] }}">Download</a></td>
 	</tr>
 	</table>
 
@@ -73,7 +73,7 @@
 			%>
 				<td align="center">{{branch}}/<a href="{{link}}">{{commit[0:7]}}</a></td>
 			% end
-			<td align="center"><a href="{{base_url + '/logs/' + res['run']['upload_file']}}">Download</a></td>
+			<td align="center"><a href="{{ url('/logs') + '/' + res['run']['upload_file'] }}">Download</a></td>
 		</tr>
 		</table>
 		<br>
