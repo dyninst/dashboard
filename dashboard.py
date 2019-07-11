@@ -24,9 +24,7 @@ def show_regressions(db):
         regs = regressions.by_arch(db, cur_id)
     except:
         msg = str(sys.exc_info()[1])
-        import traceback
-        trace = str(traceback.format_exc())
-        raise bottle.HTTPError(500, 'Error calculating regressions: {0:s}'.format(msg+trace))
+        raise bottle.HTTPError(500, 'Error calculating regressions: {0:s}'.format(msg))
     return bottle.template('regressions', regs=regs, url=bottle.url)
 
 @bottle.route('/logs')
