@@ -1,10 +1,10 @@
 def create(db_conn, properties):
     fields = [
         'arch', 'vendor', 'os', 'kernel',
-        'libc', 'hostname', 'build_status',
-        'tests_status', 'dyninst_commit',
-        'dyninst_branch', 'testsuite_commit',
-        'testsuite_branch'
+        'libc', 'hostname', 'dyninst_build_status',
+        'tests_build_status', 'tests_run_status',
+        'dyninst_commit', 'dyninst_branch',
+        'testsuite_commit', 'testsuite_branch'
     ]
     values = [properties[k] for k in fields]
     
@@ -66,8 +66,8 @@ def _create_most_recent_table(db, runid):
             join run as excluded_run on
                 excluded_run.id = ?
         where
-            run.tests_status <> 'FAILED'
-            and run.build_status <> 'FAILED'
+            run.tests_build_status = 'OK'
+            and run.dyninst_build_status = 'OK'
             and run.id <> excluded_run.id
             and run.arch = excluded_run.arch
             and run.run_date < excluded_run.run_date

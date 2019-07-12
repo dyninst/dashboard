@@ -13,7 +13,8 @@
 	<th>Arch</th>
 	<th>Host</th>
 	<th>libc</th>
-	<th>Build Status</th>
+	<th>Dyninst Build</th>
+	<th>Tests Build</th>
 	<th><span title="Pass/Fail/Skip/Crash (Total)">Test Results</span></th>
 	<th>Regressions</th>
 	<th>Dyninst</th>
@@ -28,6 +29,14 @@
 			'Unknown':'#ECCB39',
 			'none':'#58FA58'
 		}
+		
+		def get_status_color(status, default_color=''):
+			if status in status_colors:
+				return status_colors[status]
+			else:
+				return default_color
+			end
+		end
 	%>
 	
 	% for r in runs:
@@ -37,24 +46,22 @@
 		<td align="center">{{r['hostname']}}</td>
 		<td align="center">{{r['libc']}}</td>
 	
-	%	bgcolor = status_colors[r['build_status']]
-		<td align="center" bgcolor={{bgcolor}}>{{r['build_status']}}</td>
+	%	bgcolor = get_status_color(r['dyninst_build_status'])
+		<td align="center" bgcolor={{bgcolor}}>{{r['dyninst_build_status']}}</td>
+		
+	%	bgcolor = get_status_color(r['tests_build_status'])
+		<td align="center" bgcolor={{bgcolor}}>{{r['tests_build_status']}}</td>
 	
-	<%	if r['summary'] in status_colors:
-			bgcolor = status_colors[r['summary']]
-		else:
-			bgcolor = '#FFFFFF'
-		end
-	%>
+	%	bgcolor = get_status_color(r['summary'])
 		<td align="center" bgcolor={{bgcolor}}>{{r['summary']}}</td>
 	
-	% 	if r['regressions'] in status_colors:
-	%		bgcolor=status_colors[r['regressions']]
-			<td align="center" bgcolor={{bgcolor}}>{{r['regressions']}}</td>
-	% 	else:
+	% 	if str(r['regressions']).isdigit():
 			<td align="center" bgcolor=#FA5858>
 				<a href="{{ url('/regressions', id=r['runid']) }}">{{r['regressions']}}</a>
 			</td>
+	% 	else:
+	%		bgcolor=get_status_color(r['regressions'])
+			<td align="center" bgcolor={{bgcolor}}>{{r['regressions']}}</td>
 	% 	end
 		
 	<%	for t in ('dyninst','testsuite'):

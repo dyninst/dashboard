@@ -16,24 +16,19 @@ def most_recent(db):
             d = dict(zip(cols,r))
             runid = r['id']
             d.setdefault('runid', runid)
-            summary = d['tests_status']
+            d.setdefault('summary', d['tests_run_status'])
+            d.setdefault('regressions', '--')
             
-            if d['tests_status'] == 'OK':
+            if d['tests_run_status'] == 'OK':
                 res_summary = test_results.summary(db, runid)
                 if res_summary['TOTAL'] > 0:
-                    summary = \
+                    d['summary'] = \
                         str(res_summary['PASSED'])  + '/' + \
                         str(res_summary['FAILED'])  + '/' + \
                         str(res_summary['SKIPPED']) + '/' + \
                         str(res_summary['CRASHED']) + '  (' + \
                         str(res_summary['TOTAL'])   + ')'
-                else:
-                    summary = 'Unknown'
-
-            d.setdefault('summary', summary)
-            d.setdefault('regressions', 'Unknown')
-            
-            if d['tests_status'] == 'OK':
+                
                 d['regressions'] = sql.regressions.counts(db, runid)
                 if d['regressions'] == 0:
                     d['regressions'] = 'none'
@@ -65,18 +60,31 @@ def upload(db, user_file):
             results['arch'] = arch
             results.setdefault('vendor', vendor)
             
+            # Save the log file name
             results['user_file'] = file_name
 
-            # Determine the status of the builds
-            root_dir = results['root_dir']
+            # Determine the status of the Dyninst build
+            if "{0:s}/dyninst/Build.FAILED".format(results['root_dir']) in files:
+                results['dyninst_build_status'] = 'FAILED'
+            else:
+                results['dyninst_build_status'] = 'OK'
+            
+            # Determine the status of the Testsuite build
+            if "{0:s}/testsuite/Build.FAILED".format(results['root_dir']) in files:
+                results['tests_build_status'] = 'FAILED'
+            elif "{0:s}/testsuite".format(results['root_dir']) not in files:
+                results['tests_build_status'] = 'not built'
+            else:
+                results['tests_build_status'] = 'OK'
+            
+            # Determine the status of the Testsuite run
             results_log_filename = "{0:s}/testsuite/tests/test_results.log".format(root_dir)
-            for t in ('build','tests'):
-                if "{0:s}/{1:s}.FAILED".format(root_dir, t.title()) in files:
-                    results['{0:s}_status'.format(t)] = 'FAILED'
-                elif t == 'build' or (t == 'tests' and results_log_filename in files):
-                    results['{0:s}_status'.format(t)] = 'OK'
-                else:
-                    results['{0:s}_status'.format(t)] = 'Unknown'
+            if "{0:s}/Tests.FAILED".format(results['root_dir']) in files:
+                results['testsuite_run_status'] = 'FAILED'
+            elif results_log_filename not in files:
+                results['testsuite_run_status'] = 'not run'
+            else:
+                results['testsuite_run_status'] = 'OK'
             
             # Read the git branches and commits
             results.update(log_files.read_git_logs(tar, root_dir, files))
