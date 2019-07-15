@@ -72,22 +72,22 @@ def upload(db, user_file):
             # Determine the status of the Testsuite build
             if "{0:s}/testsuite/Build.FAILED".format(results['root_dir']) in files:
                 results['tests_build_status'] = 'FAILED'
-            elif "{0:s}/testsuite".format(results['root_dir']) not in files:
+            elif "{0:s}/testsuite/build/build.out".format(results['root_dir']) not in files:
                 results['tests_build_status'] = 'not built'
             else:
                 results['tests_build_status'] = 'OK'
             
             # Determine the status of the Testsuite run
-            results_log_filename = "{0:s}/testsuite/tests/test_results.log".format(root_dir)
+            results_log_filename = "{0:s}/testsuite/tests/results.log".format(results['root_dir'])
             if "{0:s}/Tests.FAILED".format(results['root_dir']) in files:
-                results['testsuite_run_status'] = 'FAILED'
+                results['tests_run_status'] = 'FAILED'
             elif results_log_filename not in files:
-                results['testsuite_run_status'] = 'not run'
+                results['tests_run_status'] = 'not run'
             else:
-                results['testsuite_run_status'] = 'OK'
+                results['tests_run_status'] = 'OK'
             
             # Read the git branches and commits
-            results.update(log_files.read_git_logs(tar, root_dir, files))
+            results.update(log_files.read_git_logs(tar, results['root_dir'], files))
             
             # There may be a trailing period in the UTC date
             # Sqlite doesn't like that, so remove it
@@ -101,7 +101,9 @@ def upload(db, user_file):
                 raise "Error creating run: {0:s}".format(e)
             
             # Load the results into the database
-            if results['build_status'] == 'OK' and results['tests_status'] == 'OK':
+            if results['dyninst_build_status'] == 'OK' and \
+               results['tests_build_status'] == 'OK' and \
+               results['tests_run_status'] == 'OK':
                 try:
                     logfile = tar.extractfile(results_log_filename)
                     reader = csv.reader(io.TextIOWrapper(logfile, encoding='utf-8'))
