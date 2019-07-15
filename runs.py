@@ -101,7 +101,9 @@ def upload(db, user_file):
                 raise "Error creating run: {0:s}".format(e)
             
             # Load the results into the database
-            if results['build_status'] == 'OK' and results['tests_status'] == 'OK':
+            if results['dyninst_build_status'] == 'OK' and \
+               results['tests_build_status'] == 'OK' and \
+               results['tests_run_status'] == 'OK':
                 try:
                     logfile = tar.extractfile(results_log_filename)
                     reader = csv.reader(io.TextIOWrapper(logfile, encoding='utf-8'))
