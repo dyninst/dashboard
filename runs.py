@@ -80,11 +80,11 @@ def upload(db, user_file):
             # Determine the status of the Testsuite run
             results_log_filename = "{0:s}/testsuite/tests/results.log".format(results['root_dir'])
             if "{0:s}/Tests.FAILED".format(results['root_dir']) in files:
-                results['testsuite_run_status'] = 'FAILED'
+                results['tests_run_status'] = 'FAILED'
             elif results_log_filename not in files:
-                results['testsuite_run_status'] = 'not run'
+                results['tests_run_status'] = 'not run'
             else:
-                results['testsuite_run_status'] = 'OK'
+                results['tests_run_status'] = 'OK'
             
             # Read the git branches and commits
             results.update(log_files.read_git_logs(tar, results['root_dir'], files))
