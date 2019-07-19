@@ -27,6 +27,40 @@ def create(db_conn, properties):
     cur.close()
     return rowid
 
+def get_by_branch(db, branch):
+    query = """
+        select
+            *
+        from run_v
+        where
+            dyninst_branch=?
+            or testsuite_branch=?
+        order by
+            run_date desc
+    """
+    cur = db.cursor()
+    cur.execute(query, [branch, branch])
+    res = cur.fetchall()
+    cur.close()
+    return res
+
+def get_by_commit(db, commit):
+    query = """
+        select
+            *
+        from run_v
+        where
+            dyninst_commit=?
+            or testsuite_commit=?
+        order by
+            run_date desc
+    """
+    cur = db.cursor()
+    cur.execute(query, [commit, commit])
+    res = cur.fetchall()
+    cur.close()
+    return res
+
 def get(db_conn, limit=None, order_by=None, runid=None):
     query = """
         select
