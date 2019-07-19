@@ -38,6 +38,10 @@ def most_recent(db):
     runs = sql.runs.get(db, limit=20, order_by='run_date')
     return _process_runs(runs, db)
 
+def by_commit(db, commit):
+    runs = sql.runs.get_by_commit(db, commit)
+    return _process_runs(runs, db)
+
 def upload(db, user_file):
     if user_file is None:
         raise "Uploaded file is not valid"

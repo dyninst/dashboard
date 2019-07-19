@@ -17,6 +17,15 @@ def index(db):
 
     return bottle.template('runs', runs=res, url=bottle.url)
 
+@bottle.route('/commit/<commit_id>')
+def show_commit(db, commit_id):
+    try:
+        res = runs.by_commit(db, commit_id)
+    except:
+        msg = str(sys.exc_info()[1])
+        raise bottle.HTTPError(500, 'Error getting runs for commit {0:s}:'.format(commit_id, msg))
+    return bottle.template('commit', runs=res, url=bottle.url)
+
 @bottle.route('/regressions')
 def show_regressions(db):
     cur_id = bottle.request.query.id
