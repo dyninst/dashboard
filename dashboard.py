@@ -26,6 +26,15 @@ def show_commit(db, commit_id):
         raise bottle.HTTPError(500, 'Error getting runs for commit {0:s}:'.format(commit_id, msg))
     return bottle.template('commit', runs=res, url=bottle.url)
 
+@bottle.route('/branch/<branch_name>')
+def show_branch(db, branch_name):
+    try:
+        res = runs.by_branch(db, branch_name)
+    except:
+        msg = str(sys.exc_info()[1])
+        raise bottle.HTTPError(500, 'Error getting runs for branch {0:s}:'.format(branch_name, msg))
+    return bottle.template('branch', runs=res, url=bottle.url)
+
 @bottle.route('/regressions')
 def show_regressions(db):
     cur_id = bottle.request.query.id

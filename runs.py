@@ -42,6 +42,10 @@ def by_commit(db, commit):
     runs = sql.runs.get_by_commit(db, commit)
     return _process_runs(runs, db)
 
+def by_branch(db, branch):
+    runs = sql.runs.get_by_branch(db, branch)
+    return _process_runs(runs, db)
+
 def upload(db, user_file):
     if user_file is None:
         raise "Uploaded file is not valid"
