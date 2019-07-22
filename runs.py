@@ -48,7 +48,7 @@ def by_branch(db, branch):
 
 def upload(db, user_file):
     if user_file is None:
-        raise "Uploaded file is not valid"
+        raise RuntimeError("Uploaded file is not valid")
 
     # Save the uploaded file
     # NB: This needs to be done _before_ it is read from
@@ -61,7 +61,7 @@ def upload(db, user_file):
             files = [m.name for m in tar.getmembers()]
             
             if "build.log" not in files:
-                raise "No build log found"
+                raise RuntimeError("No build log found")
     
             logfile = tar.extractfile("build.log")
             results = log_files.read_properties(io.TextIOWrapper(logfile, encoding='utf-8'))
@@ -109,7 +109,7 @@ def upload(db, user_file):
                 runid = sql.runs.create(db, results)
             except:
                 e = sys.exc_info()[0]
-                raise "Error creating run: {0:s}".format(e)
+                raise RuntimeError("Error creating run: {0:s}".format(e))
             
             # Load the results into the database
             if results['dyninst_build_status'] == 'OK' and \
@@ -122,8 +122,8 @@ def upload(db, user_file):
                     sql.test_results.bulk_insert(db, runid, reader)
                 except:
                     e = str(sys.exc_info()[0])
-                    raise "Error inserting test_results: {0:s}".format(e)
+                    raise RuntimeError("Error inserting test_results: {0:s}".format(e))
     except(tarfile.ReadError):
         from os import unlink
         unlink(file_name)
-        raise "'{0:s}' is not a valid tarfile".format(user_file.filename)
+        raise RuntimeError("'{0:s}' is not a valid tarfile".format(user_file.filename))
