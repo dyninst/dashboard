@@ -81,8 +81,10 @@ def download(filename):
 @bottle.route('/upload', method='POST')
 def process_upload(db):
     user_file = bottle.request.files.get('upload')
+    token = bottle.request.forms.get('token')
+
     try:
-        runs.upload(db, user_file)
+        runs.upload(db, user_file, token)
     except:
         msg = str(sys.exc_info()[1])
         raise bottle.HTTPError(500, 'Error processing upload: {0:s}'.format(msg))

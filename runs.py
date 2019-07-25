@@ -1,6 +1,7 @@
 import sys
 import sql.runs
 import sql.regressions
+import sql.auth
 import test_results
 import io
 import log_files
@@ -50,10 +51,14 @@ def by_hostname(db, name):
     runs = sql.runs.get_by_hostname(db, name)
     return _process_runs(runs, db)
 
-def upload(db, user_file):
+def upload(db, user_file, token):
+
     if user_file is None:
         raise RuntimeError("Uploaded file is not valid")
 
+    if not sql.auth.is_valid(db, token):
+        raise RuntimeError("Authentication failed")
+    
     # Save the uploaded file
     # NB: This needs to be done _before_ it is read from
     from uuid import uuid4
