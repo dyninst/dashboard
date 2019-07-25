@@ -78,10 +78,6 @@ def show_regressions_by_host(db):
 def download(filename):
     return bottle.static_file(filename, root='logs/', download=filename)
 
-@bottle.route('/upload')
-def show_upload_form():
-    return bottle.template('upload', url=bottle.url)
-
 @bottle.route('/upload', method='POST')
 def process_upload(db):
     user_file = bottle.request.files.get('upload')
