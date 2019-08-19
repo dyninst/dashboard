@@ -35,6 +35,17 @@ create table run(
 	"upload_file" TEXT
 );
 
+CREATE TABLE compiler (
+	"id" INTEGER NOT NULL PRIMARY KEY,
+	"runid" INTEGER NOT NULL,
+	"vendor" TEXT,
+	"path" TEXT,
+	"version" TEXT,
+	"language" TEXT,
+	"target" TEXT,
+	FOREIGN KEY(runid) REFERENCES run(id)
+);
+
 create table test_result(
 	"resultid" INTEGER NOT NULL PRIMARY KEY,
 	"runid" INTEGER NOT NULL,
