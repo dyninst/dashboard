@@ -46,6 +46,10 @@ def by_branch(db, branch):
     runs = sql.runs.get_by_branch(db, branch)
     return _process_runs(runs, db)
 
+def by_hostname(db, name):
+    runs = sql.runs.get_by_hostname(db, name)
+    return _process_runs(runs, db)
+
 def upload(db, user_file):
     if user_file is None:
         raise RuntimeError("Uploaded file is not valid")

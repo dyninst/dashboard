@@ -27,6 +27,22 @@ def create(db_conn, properties):
     cur.close()
     return rowid
 
+def get_by_hostname(db, name):
+    query = """
+        select
+            *
+        from run_v
+        where
+            hostname=?
+        order by
+            run_date desc
+    """
+    cur = db.cursor()
+    cur.execute(query, [name])
+    res = cur.fetchall()
+    cur.close()
+    return res
+
 def get_by_branch(db, branch):
     query = """
         select
