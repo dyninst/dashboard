@@ -7,6 +7,15 @@ from sql.bottle_sqlite import SQLitePlugin
 sqlite = SQLitePlugin(dbfile="results.sqlite3")
 bottle.install(sqlite)
 
+@bottle.route('/hostname/<name>')
+def show_hostname(db, name):
+    try:
+        res = runs.by_hostname(db, name)
+    except:
+        msg = str(sys.exc_info()[1])
+        raise bottle.HTTPError(500, 'Error getting runs: {0:s}'.format(msg))
+    return bottle.template('runs', runs=res, url=bottle.url)
+
 @bottle.route('/')
 def index(db):
     try:
