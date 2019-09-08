@@ -103,18 +103,9 @@ def upload(db, user_file):
             # There may be a trailing period in the UTC date
             # Sqlite doesn't like that, so remove it
             results['date'] = results['date'].replace('.', '')
-            
-            print(files)
-            print("\n\n")
-            
+
             # Gather compiler information
             results.update(log_files.read_compiler_logs(tar, results['root_dir'], files))
-            
-            from pprint import pprint
-            pprint(results)
-            import os
-            os.unlink('logs/' + file_name)
-            raise RuntimeError("moo")
 
             # Save the run information
             try:
