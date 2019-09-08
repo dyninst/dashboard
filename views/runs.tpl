@@ -12,6 +12,7 @@
 	<th>Date</th>
 	<th>Arch</th>
 	<th>Host</th>
+	<th>Compiler Name</th>
 	<th>libc</th>
 	<th>Dyninst Build</th>
 	<th>Tests Build</th>
@@ -44,6 +45,7 @@
 		<td align="center">{{r['run_date']}}</td>
 		<td align="center">{{r['arch']}}/{{r['vendor']}}</td>
 		<td align="center">{{r['hostname']}}</td>
+		<td align="center">{{r['compiler_name']}}</td>
 		<td align="center">{{r['libc']}}</td>
 	
 	%	bgcolor = get_status_color(r['dyninst_build_status'])
