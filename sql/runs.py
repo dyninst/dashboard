@@ -9,19 +9,19 @@ def create(db, properties):
         'testsuite_commit', 'testsuite_branch'
     ]
     values = [properties[k] for k in fields]
-    
+
     fields.append('kernel_version')
     values.append(properties['version'])
-    
+
     fields.append('upload_file')
     values.append(properties['user_file'])
-    
+
     fields.append('run_date')
     values.append(properties['date'])
 
     # Create the run (datetime is UTC)
     query = "INSERT INTO run({0:s},upload_date) VALUES ({1:s},datetime('now'))"
-    query = query.format(','.join(fields),','.join(['?']*len(values)))
+    query = query.format(','.join(fields), ','.join(['?'] * len(values)))
     cur = db.cursor()
     cur.execute(query, values)
     db.commit()
@@ -86,11 +86,11 @@ def get(db_conn, limit=None, order_by=None, runid=None):
             run_v.*
         from run_v
         where 1=1 """
-    
+
     if runid is not None:
         query += " and id = ? "
     if order_by is not None:
-        query += " order by {0:s} desc".format(order_by)    
+        query += " order by {0:s} desc".format(order_by)
     if limit is not None:
         query += " limit {0:d}".format(int(limit))
 
@@ -104,7 +104,7 @@ def get(db_conn, limit=None, order_by=None, runid=None):
 def _create_most_recent_table(db, runid):
     """
         !!! Internal use only !!!
-        
+
         Select the most recent run on every host,
         except the one specified by 'runid',
         with the same architecture as the run
