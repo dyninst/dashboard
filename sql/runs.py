@@ -1,4 +1,6 @@
-def create(db_conn, properties):
+import sql.compiler
+
+def create(db, properties):
     fields = [
         'arch', 'vendor', 'os', 'kernel',
         'libc', 'hostname', 'dyninst_build_status',
@@ -17,15 +19,32 @@ def create(db_conn, properties):
     fields.append('run_date')
     values.append(properties['date'])
 
-    # datetime is UTC
+    # Create the run (datetime is UTC)
     query = "INSERT INTO run({0:s},upload_date) VALUES ({1:s},datetime('now'))"
     query = query.format(','.join(fields),','.join(['?']*len(values)))
-    cur = db_conn.cursor()
+    cur = db.cursor()
     cur.execute(query, values)
-    db_conn.commit()
-    rowid = cur.lastrowid
+    db.commit()
+    runid = cur.lastrowid
+
+    # Create entries for the compilers used
+    compiler_name = None
+    for target, langs in properties['compiler'].items():
+        for lang, comp in langs.items():
+            if(compiler_name is None):
+                compiler_name = comp['version']
+            compilerid = sql.compiler.get(db, comp['name'], comp['path'], comp['version'], lang)
+            if(compilerid is None):
+                compilerid = sql.compiler.create(db, comp['name'], comp['path'], comp['version'], lang)
+            query = "INSERT INTO run_compiler(runid,compilerid,target) VALUES (?,?,?)"
+            cur.execute(query, [runid, compilerid, target])
+
+    # Set the compiler name for the run
+    query = "UPDATE run SET compiler_name = ? WHERE id = ?"
+    cur.execute(query, [compiler_name, runid])
+    db.commit()
     cur.close()
-    return rowid
+    return runid
 
 def get_by_branch(db, branch):
     query = """
