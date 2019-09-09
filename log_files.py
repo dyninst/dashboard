@@ -30,7 +30,7 @@ def read_compiler_logs(tar, root_dir, tar_files):
             }
         }}
     for d in ('dyninst', 'testsuite'):
-        logfile = "{0:s}/{1:s}/compilers.conf".format(root_dir, d)
+        logfile = "{0:s}/{1:s}/build/compilers.conf".format(root_dir, d)
         if logfile in tar_files:
             compiler_log = tar.extractfile(logfile)
             compiler_results = read_properties(TextIOWrapper(compiler_log, encoding='utf-8'))
