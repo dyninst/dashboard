@@ -32,7 +32,25 @@ create table run(
 	"dyninst_branch" TEXT,
 	"testsuite_commit" TEXT,
 	"testsuite_branch" TEXT,
-	"upload_file" TEXT
+	"upload_file" TEXT,
+	"compiler_name" TEXT
+);
+
+CREATE TABLE compiler (
+	"id" INTEGER NOT NULL PRIMARY KEY,
+	"name" TEXT,
+	"path" TEXT,
+	"version" TEXT,
+	"language" TEXT
+);
+
+CREATE TABLE run_compiler (
+	"id" INTEGER NOT NULL PRIMARY KEY,
+	"runid" INTEGER NOT NULL,
+	"compilerid" INTEGER NOT NULL,
+	"target" TEXT,
+	FOREIGN KEY(runid) references run(id),
+	FOREIGN KEY(compilerid) references compiler(id)
 );
 
 create table test_result(
@@ -70,5 +88,6 @@ select
     dyninst_branch,
     testsuite_commit,
     testsuite_branch,
-    upload_file
+    upload_file,
+    compiler_name
 from run;

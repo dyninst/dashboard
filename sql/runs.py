@@ -1,4 +1,6 @@
-def create(db_conn, properties):
+import sql.compiler
+
+def create(db, properties):
     fields = [
         'arch', 'vendor', 'os', 'kernel',
         'libc', 'hostname', 'dyninst_build_status',
@@ -7,25 +9,42 @@ def create(db_conn, properties):
         'testsuite_commit', 'testsuite_branch'
     ]
     values = [properties[k] for k in fields]
-    
+
     fields.append('kernel_version')
     values.append(properties['version'])
-    
+
     fields.append('upload_file')
     values.append(properties['user_file'])
-    
+
     fields.append('run_date')
     values.append(properties['date'])
 
-    # datetime is UTC
+    # Create the run (datetime is UTC)
     query = "INSERT INTO run({0:s},upload_date) VALUES ({1:s},datetime('now'))"
-    query = query.format(','.join(fields),','.join(['?']*len(values)))
-    cur = db_conn.cursor()
+    query = query.format(','.join(fields), ','.join(['?'] * len(values)))
+    cur = db.cursor()
     cur.execute(query, values)
-    db_conn.commit()
-    rowid = cur.lastrowid
+    db.commit()
+    runid = cur.lastrowid
+
+    # Create entries for the compilers used
+    compiler_name = None
+    for target, langs in properties['compiler'].items():
+        for lang, comp in langs.items():
+            if(compiler_name is None):
+                compiler_name = comp['version']
+            compilerid = sql.compiler.get(db, comp['name'], comp['path'], comp['version'], lang)
+            if(compilerid is None):
+                compilerid = sql.compiler.create(db, comp['name'], comp['path'], comp['version'], lang)
+            query = "INSERT INTO run_compiler(runid,compilerid,target) VALUES (?,?,?)"
+            cur.execute(query, [runid, compilerid, target])
+
+    # Set the compiler name for the run
+    query = "UPDATE run SET compiler_name = ? WHERE id = ?"
+    cur.execute(query, [compiler_name, runid])
+    db.commit()
     cur.close()
-    return rowid
+    return runid
 
 def get_by_hostname(db, name):
     query = """
@@ -83,11 +102,11 @@ def get(db_conn, limit=None, order_by=None, runid=None):
             run_v.*
         from run_v
         where 1=1 """
-    
+
     if runid is not None:
         query += " and id = ? "
     if order_by is not None:
-        query += " order by {0:s} desc".format(order_by)    
+        query += " order by {0:s} desc".format(order_by)
     if limit is not None:
         query += " limit {0:d}".format(int(limit))
 
@@ -101,7 +120,7 @@ def get(db_conn, limit=None, order_by=None, runid=None):
 def _create_most_recent_table(db, runid):
     """
         !!! Internal use only !!!
-        
+
         Select the most recent run on every host,
         except the one specified by 'runid',
         with the same architecture as the run

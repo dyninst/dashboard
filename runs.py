@@ -108,6 +108,9 @@ def upload(db, user_file):
             # Sqlite doesn't like that, so remove it
             results['date'] = results['date'].replace('.', '')
 
+            # Gather compiler information
+            results.update(log_files.read_compiler_logs(tar, results['root_dir'], files))
+
             # Save the run information
             try:
                 runid = sql.runs.create(db, results)
@@ -129,5 +132,5 @@ def upload(db, user_file):
                     raise RuntimeError("Error inserting test_results: {0:s}".format(e))
     except(tarfile.ReadError):
         from os import unlink
-        unlink(file_name)
+        unlink('logs/' + file_name)
         raise RuntimeError("'{0:s}' is not a valid tarfile".format(user_file.filename))
