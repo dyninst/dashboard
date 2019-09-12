@@ -24,6 +24,7 @@ def counts(db, runid):
         where
             cur.runid = ?
             and cur.result in('CRASHED','FAILED')
+            and prev.result not in('CRASHED','FAILED')
             and cur.result <> prev.result
             and prev_run.run_date < cur_run.run_date
     """
@@ -61,6 +62,7 @@ def by_arch(db_conn, cur_runid, prev_runid):
                 cur.runid = ?
                 and prev.runid = ?
                 and cur.result in('CRASHED','FAILED')
+                and prev.result not in('CRASHED','FAILED')
                 and cur.result <> prev.result
                 and cur.test_name = prev.test_name
                 and cur.compiler = prev.compiler
