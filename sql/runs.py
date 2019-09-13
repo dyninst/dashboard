@@ -121,7 +121,7 @@ def _create_most_recent_table(db, runid):
     """
         !!! Internal use only !!!
 
-        Select the most recent run on every host,
+        Select the most recent successful run on every host,
         except the one specified by 'runid',
         with the same architecture as the run
         the one specified by 'runid'
@@ -137,6 +137,7 @@ def _create_most_recent_table(db, runid):
         where
             run.tests_build_status = 'OK'
             and run.dyninst_build_status = 'OK'
+            and run.tests_run_status = 'OK'
             and run.id <> excluded_run.id
             and run.arch = excluded_run.arch
             and run.run_date < excluded_run.run_date
