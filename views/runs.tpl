@@ -83,7 +83,5 @@
 	</table>
 % end
 
-<br><br>
-<a href="{{ url('/upload') }}">Upload a new run</a>
 </body>
 </html>
