@@ -47,6 +47,10 @@ def show_branch(db, branch_name):
 @bottle.route('/regressions')
 def show_regressions(db):
     cur_id = bottle.request.query.id
+    
+    if cur_id is None:
+        raise bottle.HTTPError(400, 'Invalid query')
+    
     try:
         regs = regressions.by_arch(db, cur_id)
     except:
