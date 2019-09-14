@@ -58,6 +58,21 @@ def show_regressions(db):
         raise bottle.HTTPError(500, 'Error calculating regressions: {0:s}'.format(msg))
     return bottle.template('regressions', regs=regs, url=bottle.url)
 
+@bottle.route('/regressions/run')
+def show_regressions_by_host(db):
+    cur_id = bottle.request.query.curid
+    prev_id = bottle.request.query.previd
+    
+    if cur_id == '' or prev_id == '':
+        raise bottle.HTTPError(400, 'Invalid query')
+    
+    try:
+        regs = regressions.by_run(db, cur_id, prev_id)
+    except:
+        msg = str(sys.exc_info()[1])
+        raise bottle.HTTPError(500, 'Error calculating regressions: {0:s}'.format(msg))
+    return bottle.template('regressions', regs=regs, url=bottle.url)
+
 @bottle.route('/logs')
 @bottle.route('/logs/<filename:path>')
 def download(filename):

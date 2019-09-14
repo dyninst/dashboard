@@ -22,3 +22,23 @@ def by_arch(db, cur_id):
         regs['results'].append(d)
 
     return regs
+
+def by_run(db, cur_id, prev_id):
+    """
+        Compare the run specified by `cur_id` against
+        the run specified by `prev_id`.
+    """
+    regs = {}
+    regs['type'] = 'run'
+    regs['base_commit'] = sql.runs.get(db, runid=cur_id)[0]
+
+    # The bottle template expects a list of dictionaries, even though
+    # there is only one entry in this case.
+    regs['results'] = [
+        {
+            'run': sql.runs.get(db, runid=prev_id)[0],
+            'regressions': sql.regressions.get(db, cur_id, prev_id)
+        }
+    ]
+
+    return regs
