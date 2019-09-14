@@ -15,7 +15,7 @@ def by_arch(db, cur_id):
     
     for r in prev_runs:
         d = {'run': r, 'regressions':None}
-        regressions = sql.regressions.by_arch(db, cur_id, r['id'])
+        regressions = sql.regressions.get(db, cur_id, r['id'])
         if len(regressions) > 0:
             d['regressions'] = regressions
         regs['results'].append(d)
