@@ -37,11 +37,12 @@ def counts(db, runid):
     cur.close()
     return res[0]
 
-def by_arch(db_conn, cur_runid, prev_runid):
+def get(db_conn, cur_runid, prev_runid):
     """
-        For the run given by `runid`, select all
-        hosts of its same architecture against which
-        its test test_results cause regressions
+        Find regressions between the run specified by `cur_runid`
+        and the previous run specified by `prev_runid`
+        
+        NB: Regressions are not necessarily a reflexive relation
     """
     query = """
         select
