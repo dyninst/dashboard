@@ -61,7 +61,7 @@
 	%		for t in ('PASSED','FAILED','SKIPPED','CRASHED'):
 				<a href="{{ url("/results") }}/{{ t }}/{{ str(r['runid'])  }}" title="{{ t }}">{{ str(r['summary'][t])  }}</a>
 	%		end
-({{ str(r['summary']['TOTAL']) }})
+			({{ str(r['summary']['TOTAL']) }})
 		    </td>
 	%	else:
 	    	<td align="center" bgcolor={{ get_status_color(r['summary']) }}>{{ r['summary'] }}</td>
