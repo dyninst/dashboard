@@ -20,15 +20,7 @@ def _process_runs(runs, db):
             d.setdefault('regressions', '--')
             
             if d['tests_run_status'] == 'OK':
-                res_summary = test_results.summary(db, runid)
-                if res_summary['TOTAL'] > 0:
-                    d['summary'] = \
-                        str(res_summary['PASSED'])  + '/' + \
-                        str(res_summary['FAILED'])  + '/' + \
-                        str(res_summary['SKIPPED']) + '/' + \
-                        str(res_summary['CRASHED']) + '  (' + \
-                        str(res_summary['TOTAL'])   + ')'
-                
+                d['summary'] = test_results.summary(db, runid)
                 d['regressions'] = sql.regressions.counts(db, runid)
                 if d['regressions'] == 0:
                     d['regressions'] = 'none'

@@ -16,7 +16,7 @@
 	<th>libc</th>
 	<th>Dyninst Build</th>
 	<th>Tests Build</th>
-	<th><span title="Pass/Fail/Skip/Crash (Total)">Test Results</span></th>
+	<th>Test Results</th>
 	<th>Regressions</th>
 	<th>Dyninst</th>
 	<th>Testsuite</th>
@@ -54,8 +54,18 @@
 	%	bgcolor = get_status_color(r['tests_build_status'])
 		<td align="center" bgcolor={{bgcolor}}>{{r['tests_build_status']}}</td>
 	
-	%	bgcolor = get_status_color(r['summary'])
-		<td align="center" bgcolor={{bgcolor}}>{{r['summary']}}</td>
+	%	# If the summary is a dictionary, then it contains the results
+	%	# If not, then 'summary' is a string describing why there are not results
+	%	if isinstance(r['summary'], dict):
+			<td align="center">
+	%		for t in ('PASSED','FAILED','SKIPPED','CRASHED'):
+				<a href="{{ url("/results") }}/{{ t }}/{{ str(r['runid'])  }}" title="{{ t }}">{{ str(r['summary'][t])  }}</a>
+	%		end
+			({{ str(r['summary']['TOTAL']) }})
+		    </td>
+	%	else:
+	    	<td align="center" bgcolor={{ get_status_color(r['summary']) }}>{{ r['summary'] }}</td>
+	%	end
 	
 	% 	if str(r['regressions']).isdigit():
 			<td align="center" bgcolor=#FA5858>

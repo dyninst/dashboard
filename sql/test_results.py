@@ -32,3 +32,23 @@ def bulk_insert(db_conn, runid, logfile):
             db_conn.execute(query, values)
 
     db_conn.commit()
+
+def get(db, runid, result=None):
+    query = """
+        select
+            *
+        from test_result
+        where
+            runid=?          
+    """
+    
+    params = [str(runid)]
+    if result is not None:
+        query += " and result = ? "
+        params.append(str(result))
+
+    cur = db.cursor()
+    cur.execute(query, params)
+    res = cur.fetchall()
+    cur.close()
+    return res

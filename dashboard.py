@@ -2,10 +2,24 @@ import sys
 import bottle
 import regressions
 import runs
+import test_results
 from sql.bottle_sqlite import SQLitePlugin
 
 sqlite = SQLitePlugin(dbfile="results.sqlite3")
 bottle.install(sqlite)
+
+@bottle.route('/results')
+def dummy_results(db):
+    raise bottle.HTTPError(400)
+
+@bottle.route('/results/<result_type>/<runid>')
+def show_test_results(db, result_type, runid):
+    try:
+        res = test_results.get(db, runid, result=result_type)
+    except:
+        msg = str(sys.exc_info()[1])
+        raise bottle.HTTPError(500, 'Error fetching test results: {0:s}'.format(msg))
+    return bottle.template('test_results', results=res, url=bottle.url)
 
 @bottle.route('/hostname/<name>')
 def show_hostname(db, name):
