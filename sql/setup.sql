@@ -97,13 +97,3 @@ CREATE TABLE auth_token (
 	"token" TEXT,
 	"hostname" TEXT
 );
-
-insert into auth_token("hostname","token") values ("cayenne.cs.wisc.edu","ec2798c1fb37cce8d95d8e1d558bd519");
-insert into auth_token("hostname","token") values ("zeroah.cs.wisc.edu","b2f3bf6a6f317cde6b71547db132e797");
-insert into auth_token("hostname","token") values ("leela.cs.wisc.edu","1fa510720181141c3280b240094371d6");
-insert into auth_token("hostname","token") values ("zatar.cs.wisc.edu","d1549a402ea3fc0facedd5568230ba78");
-insert into auth_token("hostname","token") values ("ray.llnl.gov","14c2751e1fabf1a0954d4c14b5b8f896");
-insert into auth_token("hostname","token") values ("lassen.llnl.gov","3bd2daf2deca6d1fcbdc65116340b977");
-insert into auth_token("hostname","token") values ("quartz.llnl.gov","cd25856ec3b601bf1ad0e5efc9170247");
-insert into auth_token("hostname","token") values ("GalacticCentralPoint","14bb4ad2d33e1fa292c0561b7dad8232");
-insert into auth_token("hostname","token") values ("cori","2af8d40c965d41781327a4f97fe6452d");
