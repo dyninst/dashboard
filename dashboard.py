@@ -8,6 +8,19 @@ from sql.bottle_sqlite import SQLitePlugin
 sqlite = SQLitePlugin(dbfile="results.sqlite3")
 bottle.install(sqlite)
 
+@bottle.route('/details')
+def dummy_details(db):
+    raise bottle.HTTPError(400)
+
+@bottle.route('/details/<runid>')
+def show_details(db, runid):
+    try:
+        res = runs.details(db, runid)
+    except:
+        msg = str(sys.exc_info()[1])
+        raise bottle.HTTPError(500, 'Error fetching run details: {0:s}'.format(msg))
+    return bottle.template('details', results=res, url=bottle.url)
+
 @bottle.route('/results')
 def dummy_results(db):
     raise bottle.HTTPError(400)
