@@ -1,9 +1,8 @@
 <%
 # The header for displaying a run or sequence of runs
-#
-# Assumes that it is already embedded within a <table>
 %> 
 
+<table border="1">
 <tr>
 <th>Run</th>
 <th>Date</th>
