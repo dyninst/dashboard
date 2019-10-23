@@ -1,6 +1,7 @@
 import sys
 import sql.runs
 import sql.regressions
+import sql.compiler
 import sql.auth
 import test_results
 import io
@@ -25,6 +26,12 @@ def _process_runs(runs, db):
                 if d['regressions'] == 0:
                     d['regressions'] = 'none'
             res.append(d)
+    return res
+
+def details(db, runid):
+    res = {}
+    res['run'] = _process_runs(sql.runs.get(db, runid=runid), db)[0]
+    res['compilers'] = sql.compiler.by_run(db, runid)
     return res
 
 def most_recent(db):

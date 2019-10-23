@@ -26,3 +26,28 @@ def get(db, vendor, path, version, language):
     if res:
         return res[0]
     return res
+
+def by_run(db, runid):
+    query = """
+        select
+            rc.target,
+            name,
+            path,
+            version,
+            language
+        from
+            compiler
+            join run_compiler as rc on
+                rc.compilerid = compiler.id
+        where
+            rc.runid = ?   
+        order by
+            rc.target,
+            language
+    """
+    
+    cur = db.cursor()
+    cur.execute(query, [runid])
+    res = cur.fetchall()
+    cur.close()
+    return res
