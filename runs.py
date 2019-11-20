@@ -129,7 +129,6 @@ def upload(db, user_file, token):
                 try:
                     logfile = tar.extractfile(results_log_filename)
                     reader = csv.reader(io.TextIOWrapper(logfile, encoding='utf-8'))
-                    next(reader) # skip the header
                     sql.test_results.bulk_insert(db, runid, reader)
                 except:
                     e = str(sys.exc_info()[0])
