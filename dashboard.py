@@ -118,5 +118,38 @@ def process_upload(db):
     
     return bottle.redirect(bottle.url('/'))
 
+@bottle.route('/search')
+def search(db):
+    try:
+        args = {}
+        query = bottle.request.query
+        
+        # Don't create args unless they are present in the query
+        if query.since_date:
+            args['since'] = query.since_date
+        if query.before_date:
+            args['before'] = query.before_date
+        if query.dyninst_branch:
+            args['dyninst_branch'] = query.dyninst_branch
+        if query.testsuite_branch:
+            args['testsuite_branch'] = query.testsuite_branch
+        if query.dyninst_build_status:
+            args['dyninst_build_status'] = query.dyninst_build_status
+        if query.tests_build_status:
+            args['tests_build_status'] = query.tests_build_status
+        if query.tests_run_status:
+            args['tests_run_status'] = query.tests_run_status
+        if query.hostname:
+            args['hostname'] = query.hostname
+        if query.status:
+            args['dyninst_build_status'] = query.status
+            args['tests_build_status'] = query.status
+            args['tests_run_status'] = query.status
+        res = runs.search(db, args)
+    except:
+        msg = str(sys.exc_info()[1])
+        raise bottle.HTTPError(500, 'Error searching: {0:s}'.format(msg))
+    return bottle.template('runs', runs=res, url=bottle.url)
+
 if __name__ == '__main__':
     bottle.run(host='localhost', port=8080)

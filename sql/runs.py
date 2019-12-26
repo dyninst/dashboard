@@ -170,3 +170,42 @@ def most_recent_by_arch(db, exclude_run):
     res = cur.fetchall()
     cur.close()
     return res
+
+def search(db, filters):
+    query = """
+        select
+            *
+        from run_v
+        where
+            1=1
+    """
+    args = []
+
+    if 'since' in filters:
+        query += " and run_date >= ? "
+        args.append(filters['since'])
+    if 'before' in filters:
+        query += " and run_date <= ? "
+        args.append(filters['before'])
+
+    fields = ['dyninst_branch', 'testsuite_branch',
+              'dyninst_build_status', 'tests_build_status',
+              'tests_run_status', 'hostname'
+              ]
+
+    for f in fields:
+        if f in filters:
+            query += " and {0:s} = ? ".format(f)
+            args.append(filters[f])
+
+    query += " order by ? "
+    if 'order_by' in filters:
+        args.append(filters['order_by'])
+    else:
+        args.append('run_date desc')
+
+    cur = db.cursor()
+    cur.execute(query, args)
+    res = cur.fetchall()
+    cur.close()
+    return res

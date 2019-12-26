@@ -50,6 +50,10 @@ def by_hostname(db, name):
     runs = sql.runs.get_by_hostname(db, name)
     return _process_runs(runs, db)
 
+def search(db, filters):
+    runs = sql.runs.search(db, filters)
+    return _process_runs(runs, db)
+
 def upload(db, user_file, token):
 
     if user_file is None:
