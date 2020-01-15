@@ -1,13 +1,19 @@
-def summary(db_conn, runid):
+def status_names(db):
+    cur = db.cursor()
+    cur.execute("select name from status")
+    res = cur.fetchall()
+    cur.close()
+    return res
+
+def counts(db_conn, runid):
     query = """
         select
-            status.name as result,
-            sum(case when test.result is null then 0 else 1 end) as cnt
-        from status
-        left outer join test_result as test on
-            test.result = status.name
-            and test.runid = ?
-        group by status.name
+            result,
+            count(1) as cnt
+        from test_result
+        where
+            runid = ?
+        group by result
         """
     cur = db_conn.cursor()
     cur.execute(query, [str(runid)])
