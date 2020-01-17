@@ -117,56 +117,42 @@ def get(db_conn, limit=None, order_by=None, runid=None):
     cur.close()
     return res
 
-def _create_most_recent_table(db, runid):
+def most_recent_by_arch(db, runid):
     """
-        !!! Internal use only !!!
-
-        Select the most recent successful run on every host,
-        except the one specified by 'runid',
-        with the same architecture as the run
-        the one specified by 'runid'
-    """
-    query = """
-        create temporary table most_recent as
-        select
-            run.id id
-        from
-            run
-            join run as excluded_run on
-                excluded_run.id = ?
-        where
-            run.tests_build_status = 'OK'
-            and run.dyninst_build_status = 'OK'
-            and run.tests_run_status = 'OK'
-            and run.id <> excluded_run.id
-            and run.arch = excluded_run.arch
-            and run.run_date < excluded_run.run_date
-        group by
-            run.arch,
-            run.hostname
-        having
-            run.run_date = max(run.run_date);
+        Select the most recent successful run (excluding the one with id
+        'runid') on every host with the same architecture as 'runid'.
     """
 
-    cur = db.cursor()
-    cur.execute("drop table if exists most_recent;")
-    cur.execute(query, [str(runid)])
-    cur.close()
-
-def most_recent_by_arch(db, exclude_run):
     query = """
         select
             run_v.*
         from
             run_v
-            join most_recent on
-                most_recent.id = run_v.id
-        group by
-            run_v.hostname
-        """
-    _create_most_recent_table(db, exclude_run)
+            join (
+                select
+                    run.id as id
+                from
+                    run
+                    join run as excluded_run on
+                        excluded_run.id = ?
+                where
+                    run.tests_build_status = 'OK'
+                    and run.dyninst_build_status = 'OK'
+                    and run.tests_run_status = 'OK'
+                    and run.id <> excluded_run.id
+                    and run.arch = excluded_run.arch
+                    and run.run_date < excluded_run.run_date
+                    and run.id not in(select distinct cur_run from regression_count)
+                group by
+                    run.arch,
+                    run.hostname
+                having
+                    run.run_date = max(run.run_date)
+            ) as most_recent_runs on
+                run_v.id = most_recent_runs.id
+    """
     cur = db.cursor()
-    cur.execute(query)
+    cur.execute(query, [str(runid)])
     res = cur.fetchall()
     cur.close()
     return res

@@ -8,18 +8,19 @@ import io
 import log_files
 import tarfile
 import csv
+import regressions
 
 def _process_runs(runs, db):
     res = []
     if len(runs) > 0:
         cols = runs[0].keys()
         for r in runs:
-            d = dict(zip(cols,r))
+            d = dict(zip(cols, r))
             runid = r['id']
             d.setdefault('runid', runid)
             d.setdefault('summary', d['tests_run_status'])
             d.setdefault('regressions', '--')
-            
+
             if d['tests_run_status'] == 'OK':
                 d['summary'] = test_results.summary(db, runid)
                 d['regressions'] = sql.regressions.counts(db, runid)
@@ -61,7 +62,7 @@ def upload(db, user_file, token):
 
     if not sql.auth.is_valid(db, token):
         raise RuntimeError("Authentication failed")
-    
+
     # Save the uploaded file
     # NB: This needs to be done _before_ it is read from
     from uuid import uuid4
@@ -71,18 +72,18 @@ def upload(db, user_file, token):
     try:
         with tarfile.open(fileobj=user_file.file, mode="r:gz") as tar:
             files = [m.name for m in tar.getmembers()]
-            
+
             if "build.log" not in files:
                 raise RuntimeError("No build log found")
-    
+
             logfile = tar.extractfile("build.log")
             results = log_files.read_properties(io.TextIOWrapper(logfile, encoding='utf-8'))
-            
+
             # Split the architecture and vendor names
             arch, vendor = results['arch'].split('/', 1)
             results['arch'] = arch
             results.setdefault('vendor', vendor)
-            
+
             # Save the log file name
             results['user_file'] = file_name
 
@@ -91,7 +92,7 @@ def upload(db, user_file, token):
                 results['dyninst_build_status'] = 'FAILED'
             else:
                 results['dyninst_build_status'] = 'OK'
-            
+
             # Determine the status of the Testsuite build
             if "{0:s}/testsuite/Build.FAILED".format(results['root_dir']) in files:
                 results['tests_build_status'] = 'FAILED'
@@ -99,7 +100,7 @@ def upload(db, user_file, token):
                 results['tests_build_status'] = 'not built'
             else:
                 results['tests_build_status'] = 'OK'
-            
+
             # Determine the status of the Testsuite run
             results_log_filename = "{0:s}/testsuite/tests/results.log".format(results['root_dir'])
             if "{0:s}/Tests.FAILED".format(results['root_dir']) in files:
@@ -108,10 +109,10 @@ def upload(db, user_file, token):
                 results['tests_run_status'] = 'not run'
             else:
                 results['tests_run_status'] = 'OK'
-            
+
             # Read the git branches and commits
             results.update(log_files.read_git_logs(tar, results['root_dir'], files))
-            
+
             # There may be a trailing period in the UTC date
             # Sqlite doesn't like that, so remove it
             results['date'] = results['date'].replace('.', '')
@@ -125,7 +126,7 @@ def upload(db, user_file, token):
             except:
                 e = sys.exc_info()[0]
                 raise RuntimeError("Error creating run: {0:s}".format(e))
-            
+
             # Load the results into the database
             if results['dyninst_build_status'] == 'OK' and \
                results['tests_build_status'] == 'OK' and \
@@ -137,6 +138,9 @@ def upload(db, user_file, token):
                 except:
                     e = str(sys.exc_info()[0])
                     raise RuntimeError("Error inserting test_results: {0:s}".format(e))
+
+                # Create regressions, if any
+                regressions.create(db, runid)
     except(tarfile.ReadError):
         from os import unlink
         unlink('logs/' + file_name)

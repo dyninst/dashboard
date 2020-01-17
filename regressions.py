@@ -1,6 +1,16 @@
 import sql.regressions
 import sql.runs
 
+def create(db, cur_id):
+    """
+        Enumerate the regressions caused by the run 'run_id'
+    """
+    regs = by_arch(db, cur_id)
+
+    for res in regs['results']:
+        if res['regressions']:
+            sql.regressions.create(db, cur_id, res['run']['id'], len(res['regressions']))
+
 def by_arch(db, cur_id):
     """
         Compare the run specified by `cur_id` against the most

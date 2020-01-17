@@ -1,47 +1,32 @@
-import sql.runs
+def create(db, cur_run, prev_run, cnt):
+    query = """
+        insert into regression_count(cur_run,prev_run,cnt) values(?,?,?)
+    """
+    cur = db.cursor()
+    cur.execute(query, [str(cur_run), str(prev_run), str(cnt)])
+    cur.close()
 
 def counts(db, runid):
     query = """
         select
-            count(1) as cnt
+            sum(cnt)
         from
-            test_result as cur
-            join test_result as prev on
-                cur.test_name = prev.test_name
-                and cur.compiler = prev.compiler
-                and cur.optimization = prev.optimization
-                and cur.abi = prev.abi
-                and cur.mode = prev.mode
-                and cur.threading = prev.threading
-                and cur.link = prev.link
-                and cur.pic = prev.pic
-            join most_recent on
-                most_recent.id = prev.runid
-            join run as prev_run on
-                prev_run.id = prev.runid
-            join run as cur_run on
-                cur_run.id = cur.runid
+            regression_count
         where
-            cur.runid = ?
-            and cur.result in('CRASHED','FAILED')
-            and prev.result not in('CRASHED','FAILED')
-            and cur.result <> prev.result
-            and prev_run.run_date < cur_run.run_date
+            cur_run = ?
     """
-    
-    sql.runs._create_most_recent_table(db, runid)
-    
+
     cur = db.cursor()
     cur.execute(query, [str(runid)])
     res = cur.fetchone()
     cur.close()
-    return res[0]
+    return res[0] if res[0] else 0
 
 def get(db_conn, cur_runid, prev_runid):
     """
         Find regressions between the run specified by `cur_runid`
         and the previous run specified by `prev_runid`
-        
+
         NB: Regressions are not necessarily a reflexive relation
     """
     query = """
