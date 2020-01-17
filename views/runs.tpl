@@ -1,5 +1,8 @@
 <!DOCTYPE html>
 <html>
+<head>
+	<title>Dyninst Test Suite Results</title>
+</head>
 <body>
 
 % if len(runs) == 0:
