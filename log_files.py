@@ -7,24 +7,24 @@ def read_compiler_logs(tar, root_dir, tar_files):
             'dyninst': {
                 'c': {
                     'path': '',
-                    'name': '',
+                    'name': 'Unknown',
                     'version': ''
                 },
                 'cxx': {
                     'path': '',
-                    'name': '',
+                    'name': 'Unknown',
                     'version': ''
                 }
             },
             'testsuite': {
                 'c': {
                     'path': '',
-                    'name': '',
+                    'name': 'Unknown',
                     'version': ''
                 },
                 'cxx': {
                     'path': '',
-                    'name': '',
+                    'name': 'Unknown',
                     'version': ''
                 }
             }
