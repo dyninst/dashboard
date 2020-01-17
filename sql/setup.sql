@@ -97,3 +97,14 @@ CREATE TABLE auth_token (
 	"token" TEXT,
 	"hostname" TEXT
 );
+
+CREATE TABLE regression_count (
+	"id" INTEGER NOT NULL PRIMARY KEY,
+	"cur_run" INTEGER NOT NULL,
+	"prev_run" INTEGER NOT NULL,
+	"cnt" INTEGER,
+	FOREIGN KEY(cur_run) references run(id),
+	FOREIGN KEY(prev_run) references run(id)
+);
+CREATE UNIQUE INDEX regression_count_unique ON regression_count(cur_run,prev_run); 
+
