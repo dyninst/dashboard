@@ -157,6 +157,45 @@ def most_recent_by_arch(db, runid):
     cur.close()
     return res
 
+def most_recent_by_host(db, runid):
+    """
+        Select the most recent successful run (excluding the one with id
+        'runid') on every host with the same host as 'runid'.
+    """
+
+    query = """
+        select
+            run_v.*
+        from
+            run_v
+            join (
+                select
+                    run.id as id
+                from
+                    run
+                    join run as excluded_run on
+                        excluded_run.id = ?
+                where
+                    run.tests_build_status = 'OK'
+                    and run.dyninst_build_status = 'OK'
+                    and run.tests_run_status = 'OK'
+                    and run.id <> excluded_run.id
+                    and run.hostname = excluded_run.hostname
+                    and run.run_date < excluded_run.run_date
+                    and run.id not in(select distinct cur_run from regression_count)
+                group by
+                    run.hostname
+                having
+                    run.run_date = max(run.run_date)
+            ) as most_recent_runs on
+                run_v.id = most_recent_runs.id
+    """
+    cur = db.cursor()
+    cur.execute(query, [str(runid)])
+    res = cur.fetchall()
+    cur.close()
+    return res
+
 def search(db, filters):
     query = """
         select
