@@ -41,6 +41,8 @@
 		<span style="">against the most recent runs on hosts with architecture <b>{{regs['base_commit']['arch']}}</b></span>
 %	elif regs['type'] == 'run':
 		<span style="">against the single run </b></span>
+%	elif regs['type'] == 'host':
+		<span style="">against the most recent run on <b>{{regs['base_commit']['hostname']}}</b></span>
 %	else:
 		<span style="">Unknown type: This should not happen</b></span>
 %	end

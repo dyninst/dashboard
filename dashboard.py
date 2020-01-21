@@ -79,7 +79,7 @@ def show_regressions(db):
         raise bottle.HTTPError(400, 'Invalid query')
     
     try:
-        regs = regressions.by_arch(db, cur_id)
+        regs = regressions.by_host(db, cur_id)
     except:
         msg = str(sys.exc_info()[1])
         raise bottle.HTTPError(500, 'Error calculating regressions: {0:s}'.format(msg))
