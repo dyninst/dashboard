@@ -184,11 +184,7 @@ def search(db, filters):
             query += " and {0:s} = ? ".format(f)
             args.append(filters[f])
 
-    query += " order by ? "
-    if 'order_by' in filters:
-        args.append(filters['order_by'])
-    else:
-        args.append('run_date desc')
+    query += ' order by run_date desc '
 
     cur = db.cursor()
     cur.execute(query, args)
