@@ -64,3 +64,15 @@ def read_properties(file):
             if k is not None:
                 props[k] = str.strip(v)
     return props
+
+def read_run_log(run_log):
+    import re
+    hangs = []
+    p = re.compile("(\S+?) exceeded time limit")
+
+    for l in run_log:
+        m = p.match(l)
+        if m:            
+            hangs.append(m.group(1))
+    
+    return hangs

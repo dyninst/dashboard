@@ -7,6 +7,7 @@ insert into status(name) values('FAILED');
 insert into status(name) values('CRASHED');
 insert into status(name) values('SKIPPED');
 insert into status(name) values('PASSED');
+insert into status(name) values('HANGED');
 
 create table mode("name" varchar(12));
 insert into mode(name) values('attach');
