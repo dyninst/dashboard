@@ -58,9 +58,30 @@ def get(db_conn, cur_runid, prev_runid):
                 and cur.threading = prev.threading
                 and cur.link = prev.link
                 and cur.pic = prev.pic
+        UNION
+        select
+            cur.test_name,
+            cur.compiler,
+            cur.optimization,
+            cur.abi,
+            cur.mode,
+            cur.threading,
+            cur.link,
+            cur.pic,
+            prev.result as previous_result,
+            cur.result as current_result,
+            cur.reason
+        from
+            test_result as cur
+            join test_result as prev on
+                cur.runid = ?
+                and prev.runid = ?
+                and cur.result = 'HANGED'
+                and prev.result <> 'HANGED'
+                and cur.test_name = prev.test_name
     """
     cur = db_conn.cursor()
-    cur.execute(query, [str(cur_runid), str(prev_runid)])
+    cur.execute(query, [str(cur_runid), str(prev_runid), str(cur_runid), str(prev_runid)])
     res = cur.fetchall()
     cur.close()
     return res

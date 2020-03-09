@@ -43,7 +43,7 @@ if run is not None:
 %	# If not, then 'summary' is a string describing why there are not results
 %	if isinstance(run['summary'], dict):
 		<td align="center">
-%		for t in ('PASSED','FAILED','SKIPPED','CRASHED'):
+%		for t in ('PASSED','FAILED','SKIPPED','CRASHED', 'HANGED'):
 			<a href="{{ url("/results") }}/{{ t }}/{{ str(run['runid'])  }}" title="{{ t }}">{{ str(run['summary'][t])  }}</a>
 %		end
 		({{ str(run['summary']['TOTAL']) }})
