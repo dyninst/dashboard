@@ -139,15 +139,6 @@ def upload(db, user_file, token):
                     e = str(sys.exc_info()[0])
                     raise RuntimeError("Error inserting test_results: {0:s}".format(e))
 
-                try:
-                    run_log_filename = "{0:s}/testsuite/tests/run.log".format(results['root_dir'])
-                    logfile = tar.extractfile(run_log_filename)
-                    hangs = log_files.read_run_log(io.TextIOWrapper(logfile, encoding='utf-8'))
-                    sql.test_results.insert_hangs(db, runid, hangs)
-                except:
-                    e = str(sys.exc_info()[0])
-                    raise RuntimeError("Error inserting test result hangs: {0:s}".format(e))
-                
                 # Create regressions, if any
                 regressions.create(db, runid)
     except(tarfile.ReadError):
