@@ -13,3 +13,7 @@ logs/
 *.sqlite3
 
 sql/views.sql
+
+# DBeaver folders
+.dbeaver/
+Scripts/
