@@ -60,7 +60,7 @@ def read_properties(file):
     props = {}
     for l in file:
         if ': ' in l:
-            k, v = l.split(': ')
+            k, v = l.split(': ', 1)
             if k is not None:
                 props[k] = str.strip(v)
     return props
