@@ -25,7 +25,7 @@ if run is not None:
 	end
 %>
 
-	<tr>
+	<tr class="item">
 	<td align="center"><a href="{{ url('/details') }}/{{ run['runid'] }}">{{ run['runid'] }}</a></td>
 	<td align="center">{{run['run_date']}}</td>
 	<td align="center">{{run['arch']}}/{{run['vendor']}}</td>
