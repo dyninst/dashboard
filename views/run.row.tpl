@@ -68,6 +68,8 @@ if run is not None:
 		if branch[0:2] == 'PR':
 			# pull request branches have the for PRXXX
 			link = 'https://github.com/dyninst/{0:s}/pull/{1:s}'.format(t, branch[2:])
+		elif len(branch) > 8:
+			branch = branch[0:5] + '...'
 		end
 %>
 		<td align="center">{{branch}}/<a href="{{link}}">{{commit[0:7]}}</a></td>
