@@ -1,6 +1,13 @@
 <%
 # The header for displaying a run or sequence of runs
-%> 
+%>
+
+<style style="text/css">
+	tr:hover {
+		background-color: #F0F0F0
+	}
+</style>
+
 
 <table border="1" id="results">
 <tr>
