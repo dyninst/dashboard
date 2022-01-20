@@ -1,19 +1,18 @@
-#Eclipse folders
-.project
-.cproject
-.pydevproject
-.settings
-
-logs/
-
-# pyc files
+.eggs
+backup/
+secret_key.py
+creation_date.py
+app.yaml
+app-dev.yaml
 *.pyc
-
-# sqlite
-*.sqlite3
-
-sql/views.sql
-
-# DBeaver folders
-.dbeaver/
-Scripts/
+*~
+.idea/*
+.DS_Store
+.env
+__pycache__
+static/
+env/
+db.sqlite3
+test-db.sqlite
+dyninst_dashboard.egg-info/
+migrations
