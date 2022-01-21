@@ -1,0 +1,74 @@
+{
+   "date_run":"2022-01-13T02:09:23",
+   "environment":{
+      "host_os":"CentOS 7",
+      "hostname":"llnl.cs.rice.edu",
+      "kernel":"4.14.0-115.16.1.el7a.ppc64le #1 SMP Wed Nov 27 18:01:42 UTC 2019",
+      "arch":"ppc64le/POWER9",
+      "dependencies":{
+         "boost":{
+            "version":"1.76.0",
+            "path":"/path/to/boost"
+         },
+         "tbb":{
+            "version":"1.1",
+            "path":"some/path"
+         },
+         "libc":{
+            "version":"2.17",
+            "path":"/lib64"
+         }
+      }
+   },
+   "compiler":{
+      "name":"gcc-10",
+      "path":"some/path",
+      "version":"10.2.1",
+      "language":"C++"
+   },
+   "command":"-DCMAKE_C_COMPILER=gcc -DCMAKE_CXX_COMPILER=g++ -DCMAKE_MUT_C_COMPILER=gcc -DCMAKE_MUT_CXX_COMPILER=g++",
+   "pull_request":{
+      "url":"https://github.com...",
+      "user":"vsoch",
+      "pr_id":"1234"
+   },
+   "cirun_url":"https://github.com...",
+   "repositories":{
+      "dyninst":{
+         "name":"https://github.com/dyninst/dyninst",
+         "commit":"blah...",
+         "branch":"foo",
+         "history":"f6d12af97 (HEAD -> master, origin/master, dyninst/master) Remove erroneous use of realloc in symtabAPI/Type-mem.h (#1170);94252b8ce Clean up memoryTracker usage in binaryEdit (#877);91ede1ff4 (tag: v12.0.1) Documentation updates for 12.0.1 release;e6b188351 Remove NVIDIA external line map configure check (#1162);1912be31c Increase minimum elfutils version to 0.186 (#1161)"
+      },
+      "testsuite":{
+         "name":"https://github.com/dyninst/testsuite",
+         "commit":"blah...",
+         "branch":"foo",
+         "history":"blurg"
+      }
+   },
+   "test_run_results":{
+      "build_results":{
+         "dyninst":{
+            "status":"FAILED",
+            "num_jobs": "2",
+            "time": "412"
+         },
+         "testsuite":{
+            "status":"OK",
+            "num_jobs": "6",
+            "time": "632"
+         }
+      },
+      "test_run_status":"OK",
+      "is_single_step":"no",
+      "num_parallel_tests": "8",
+      "num_omp_threads": "2",
+      "time": "899",
+      "items":[
+         "aarch64_cft,,none,64,disk,NA,dynamic,nonPIC,PASSED,",
+         "aarch64_decode,,none,64,disk,NA,dynamic,nonPIC,PASSED,",
+         "aarch64_decode_ldst,,none,64,disk,NA,dynamic,nonPIC,PASSED,"
+      ]
+   }
+}
