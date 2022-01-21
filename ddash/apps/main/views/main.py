@@ -16,34 +16,6 @@ def index(request):
     return render(request, "main/index.html", {"builds": builds})
 
 
-@ratelimit(key="ip", rate=rl_rate, block=rl_block)
-def builds_by_tag(request, tag):
-    builds = Build.objects.filter(tags__name=tag)
-    # Present all tags for browsing
-    tags = Build.objects.all().values_list("tags__name", flat=True).distinct()
-    return render(
-        request, "main/index.html", {"builds": builds, "tag": tag, "tags": tags}
-    )
-
-
-@ratelimit(key="ip", rate=rl_rate, block=rl_block)
-def builds_by_owner(request, username):
-    builds = Build.objects.filter(owner__username=username)
-    tags = builds.values_list("tags__name", flat=True).distinct()
-    return render(
-        request, "main/index.html", {"builds": builds, "owner": username, "tags": tags}
-    )
-
-
-@ratelimit(key="ip", rate=rl_rate, block=rl_block)
-def build_detail(request, bid):
-    build = get_object_or_404(Build, pk=bid)
-
-    # Generate BuildWarnings and BuildErrors if don't exist
-    if build.logs_parsed == 0:
-        parse_build_logs(build)
-    return render(request, "builds/detail.html", {"build": build})
-
 
 """
 @bottle.route('/details')
