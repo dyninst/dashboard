@@ -16,7 +16,6 @@ def index(request):
     return render(request, "main/index.html", {"builds": builds})
 
 
-
 """
 @bottle.route('/details')
 def dummy_details(db):

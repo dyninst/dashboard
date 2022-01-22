@@ -8,6 +8,7 @@ from ddash.settings import (
     VIEW_RATE_LIMIT_BLOCK as rl_block,
 )
 
+
 @ratelimit(key="ip", rate=rl_rate, block=rl_block)
 def testrun_detail(request, id):
     testrun = get_object_or_404(TestRun, pk=id)

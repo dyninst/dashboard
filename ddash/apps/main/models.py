@@ -39,11 +39,11 @@ class PullRequest(models.Model):
 
 
 class Compiler(models.Model):
-    name = models.CharField(blank=False, null=False, max_length=100, unique=True)
+    name = models.CharField(blank=False, null=False, max_length=100)
     version = models.CharField(blank=True, null=False, max_length=100)
     path = models.CharField(blank=True, null=True, max_length=100)
     language = models.CharField(
-        choices=LANGUAGES, blank=True, null=True, max_length=100, unique=True
+        choices=LANGUAGES, blank=True, null=True, max_length=100
     )
 
     def __str__(self):
@@ -102,6 +102,7 @@ class BuildResult(models.Model):
     time = models.PositiveIntegerField(
         default=0, blank=True, help_text="Build time in seconds"
     )
+    legacy_log = models.CharField(blank=True, null=True, max_length=250)
     log = models.FileField(
         upload_to=get_upload_folder,
         max_length=255,
@@ -145,6 +146,7 @@ class TestRunResult(models.Model):
     num_parallel_tests = models.PositiveIntegerField(default=0, blank=True)
     num_omp_threads = models.PositiveIntegerField(default=0, blank=True)
     time = models.PositiveIntegerField(default=0, blank=True)
+    legacy_log = models.CharField(blank=True, null=True, max_length=250)
     test_log = models.FileField(
         upload_to=get_upload_folder, max_length=255, storage=OverwriteStorage()
     )
