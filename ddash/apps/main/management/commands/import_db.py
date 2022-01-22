@@ -156,19 +156,22 @@ def add_runs(conn):
     # Keep track of test run lookup to add results to
     test_run_lookup = {}
     test_result_lookup = {}
+    total_runs = len(runs)
 
-    for run in runs:
+    for i, run in enumerate(runs):
+
+        print("Adding run %s of %s" % (i + 1, total_runs))
 
         # Derive the PR id either from dyninst or testsuite (I checked, it's either OR)
         if "PR" in run[idx["dyninst_branch"]]:
-            pr_id = re.sub("(PR|pr)", "", run[idx["dyninst_branch"]])
+            pr_id = re.sub("(PR|pr|dev_)", "", run[idx["dyninst_branch"]])
             pr, _ = PullRequest.objects.get_or_create(
                 url="https://github.com/dyninst/dyninst/pull/%s" % pr_id,
                 user="unknown",
                 pr_id=int(pr_id),
             )
         elif "PR" in run[idx["testsuite_branch"]]:
-            pr_id = re.sub("(PR|pr)", "", run[idx["testsuite_branch"]])
+            pr_id = re.sub("(PR|pr|_dev)", "", run[idx["testsuite_branch"]])
             pr, _ = PullRequest.objects.get_or_create(
                 url="https://github.com/dyninst/testsuite/pull/%s" % pr_id,
                 user="unknown",
@@ -193,18 +196,7 @@ def add_runs(conn):
         )
         if not envs:
 
-            # Assert that we don't have the same environment with no dependencies
-            envs = Environment.objects.filter(
-                hostname=run[idx["hostname"]],
-                arch=run[idx["arch"]],
-                kernel=run[idx["kernel"]],
-                host_os=run[idx["os"]],
-            )
-            if envs.count() != 0:
-                sys.exit(
-                    "Trying to create new environment, but environment with no dependencies exists (this should not happen)"
-                )
-
+            # NOTE this will basically never allow for an env without deps
             # For kernel, note that we aren't adding kernel_version (too much detail)
             # Create the environment
             env, _ = Environment.objects.get_or_create(
