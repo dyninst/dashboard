@@ -50,7 +50,7 @@ class DDashClient:
         else:
             self.headers = {}
 
-    def do_request(self, endpoint, method="GET", data=None, headers=None):
+    def do_request(self, endpoint, method="GET", data=None, headers=None, files=None):
         """
         Do a request. This is a wrapper around requests.
         """
@@ -62,7 +62,7 @@ class DDashClient:
         url = "%s/%s" % (self.baseurl, endpoint)
 
         # Make the request and return to calling function, unless requires auth
-        response = self.session.request(method, url, data=data, headers=headers)
+        response = self.session.request(method, url, data=data, headers=headers, files=files)
 
         # A 401 response is a request for authentication
         if response.status_code != 401:
@@ -130,16 +130,38 @@ class DDashClient:
         response = self.do_request("")
         return response.json()
 
-    def upload_result(self, result_json, log_file):
-        """Upload a result, which includes a json file and a log
+    def upload_result(self, result_json, test_log=None, dyninst_build_log=None, test_build_log=None):
+        """Upload a result, which includes a json file and optionally three logs:
+       
+         - test_log is associated with the main test result
+         - dyninst_build_log is for the dyninst BuildResult
+         - testsuite_build_log is for the testsuite BuildResult
+        """
+        response = self.upload_result_json(result_json)
+        print(response.get('message'))
+        if response.get('code') == 201:
+            run_id = 10 #response.get('data', {}).get('test_run')
+            if run_id and test_log:
+                self.upload_result_log(test_log, run_id, "test_log")
+            if run_id and dyninst_build_log:
+                self.upload_result_log(dyninst_build_log, run_id, "dyninst_build_log")
+            if run_id and test_build_log:
+                self.upload_result_log(test_build_log, run_id, "test_build_log")
+
+    def upload_result_json(self, result_json):
+        """
+        Upload just a json test result.
         """
         result = read_json(result_json)
-        print(result)
-        # First we upload the json, and only continue if it is valid
-        response = self.do_request("results/new/", "POST", data=json.dumps( {"result": result}))
+        return self.do_request("results/new/", "POST", data=json.dumps({"result": result}))
 
-        # TODO need to upload file
-        # response = self.do_request("logs/new/", "POST", data=json.dumps( {"result": result}))
+    def upload_result_log(self, filename, run_id, log_type):
+        """
+        Upload some kind of result log.
+        """
+        data = {"run_id": run_id, "log_type": log_type}
+        files = {'logfile': open(filename, 'rb')}
+        return self.do_request("results/log/", "POST", data=data, files=files)
 
 
 # Helper functions

@@ -12,7 +12,7 @@
 # export DDASH_USER=thebestdude
 
 # Usage
-# python upload_testresult.py data/example_results.json data/test-log.txt
+# python upload_testresult.py data/example_results.json data/d339ca31dbcb698174e560bc85e222cae8dc3321b848911de7315924fc4a6bc9.tar.gz
 
 import os
 import json
@@ -31,6 +31,9 @@ if len(sys.argv) < 3:
 
 # Upload json file and log file
 upload_file = os.path.abspath(sys.argv[1])
+
+# We are assuming this is the test log, dyninst and testresult build log. 
+# In reality these would be different files, and they aren't required.
 log_file = sys.argv[2]
 
 for filename in [upload_file, log_file]:
@@ -47,5 +50,6 @@ for filename in [upload_file, log_file]:
 # defaults to host=http:127.0.0.1 and prefix=ms1
 client = DDashClient()
 
-response = client.upload_result(upload_file, log_file)
-print(json.dumps(response.json(), indent=4))
+# We are cheating here and providing the same file for all three logs!
+response = client.upload_result(upload_file, test_log=log_file, dyninst_build_log=log_file, test_build_log=log_file)
+print(response)

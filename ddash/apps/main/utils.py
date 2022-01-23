@@ -2,6 +2,7 @@ import json
 
 import ddash.settings as settings
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -45,12 +46,21 @@ LANGUAGES = [
 
 
 def get_upload_folder(instance, filename):
-    root = os.path.join(settings.MEDIA_ROOT, instance.id)
+    if "dyninst" in filename:
+        instance_id = instance.test_result_dyninst_build.first().id
+    elif "testsuite" in filename:
+        instance_id = instance.test_result_testsuite.first().id
+    else:
+        instance_id = instance.id
+
+    print(filename)
+    root = os.path.join(settings.MEDIA_ROOT, str(instance_id))
     upload_dir = os.path.join(root, "logs")
     for dirname in [root, upload_dir]:
         if not os.path.exists(dirname):
             os.mkdir(dirname)
-    return os.path.join(upload_dir, filename)
+    # Return path must be relative to media root!
+    return os.path.join(str(instance_id), "logs", filename)
 
 
 def read_json(filename):

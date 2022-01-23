@@ -302,7 +302,7 @@ CACHE_MIDDLEWARE_ALIAS = "default"
 CACHE_MIDDLEWARE_SECONDS = 86400  # one day
 
 # POSTs to API typically have a limit of 2.5MB, disable limit
-DATA_UPLOAD_MAX_MEMORY_SIZE = None
+DATA_UPLOAD_MAX_MEMORY_SIZE = 0
 
 # Tags should not be case sensitive
 TAGGIT_CASE_INSENSITIVE = True
@@ -323,8 +323,8 @@ if not os.path.exists(cache):
     os.makedirs(cache)
 
 # Disable check for max memory size of data
-DATA_UPLOAD_MAX_MEMORY_SIZE = None
-FILE_UPLOAD_MAX_MEMORY_SIZE = None
+DATA_UPLOAD_MAX_MEMORY_SIZE = 99999999999999
+FILE_UPLOAD_MAX_MEMORY_SIZE = 99999999999999
 
 CACHES.update(
     {

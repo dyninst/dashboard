@@ -1,3 +1,6 @@
+from django.utils.dateparse import parse_datetime
+from django.utils.timezone import make_aware
+
 from ddash.apps.main.models import (
     TestRun,
     TestResult,
@@ -202,7 +205,7 @@ def import_result(data):
 
     # Create a new test run
     test_run = TestRun(
-        date_run=data["date_run"],
+        date_run=make_aware(parse_datetime(data["date_run"])),
         dyninst=repos.get("dyninst"),
         testsuite=repos.get("testsuite"),
         environment=environ,
@@ -210,6 +213,7 @@ def import_result(data):
         cirun_url=data.get("cirun_url"),
         compiler=compiler,
         result=result,
+        command=data.get("command"),
     )
     test_run.save()
 
@@ -218,3 +222,50 @@ def import_result(data):
 
     data = {"test_run": test_run.id}
     return {"message": "success", "data": data, "code": 201}
+
+
+def import_build_log(run_id, request_file, result_type):
+    if result_type not in ["dyninst", "testsuite"]:
+        return {
+            "code": 400,
+            "message": "Test build log must be of type dyninst or testsuite",
+        }
+    try:
+        test_run = TestRun.objects.get(id=run_id)
+    except TestRun.DoesNotExist:
+        return {"code": 404, "message": "TestRun with ID %s does not exist." % run_id}
+
+    if result_type == "dyninst":
+        test_run.result.dyninst_build.log.save(
+            "dyninst-build-" + request_file.name, request_file
+        )
+        test_run.result.dyninst_build.save()
+        test_run.result.save()
+        test_run.save()
+        return {"code": 201, "message": "TestBuildResult log for dyninst was saved."}
+
+    test_run.result.testsuite_build.log.save(
+        "testsuite-build-" + request_file.name, request_file
+    )
+    test_run.result.testsuite_build.save()
+    test_run.result.save()
+    test_run.save()
+    return {"code": 201, "message": "TestBuildResult log for the testsuite was saved."}
+
+
+def import_test_log(run_id, request_file):
+    try:
+        test_run = TestRun.objects.get(id=run_id)
+    except TestRun.DoesNotExist:
+        return {"code": 404, "message": "TestRun with ID %s does not exist." % run_id}
+
+    # This should not happen
+    if not test_run.result:
+        return {
+            "code": 404,
+            "message": "TestRun with ID %s does not have a TestRunResult." % run_id,
+        }
+    test_run.result.test_log.save("test-log-" + request_file.name, request_file)
+    test_run.result.save()
+    test_run.save()
+    return {"code": 201, "message": "Test log was added to TestRun result."}

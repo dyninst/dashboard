@@ -38,6 +38,7 @@ urlpatterns = [
         api_views.ServiceInfo.as_view(),
         name="service_info",
     ),
+    path("results/log/", api_views.upload_log),
     path(
         "results/new/",
         api_views.NewTestResult.as_view(),

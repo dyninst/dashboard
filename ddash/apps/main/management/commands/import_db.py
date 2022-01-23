@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth import authenticate
 from ddash.apps.main.models import *
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.utils.dateparse import parse_datetime
 from django.utils.timezone import make_aware
 import sqlite3
@@ -111,8 +111,8 @@ class Command(BaseCommand):
         compiler_id_lookup = add_compilers(conn)
         test_run_lookup, test_result_lookup = add_runs(conn)
 
-        # Finally, add regressions
-        add_regressions(conn, test_run_lookup)
+        # Finally, add regressions (skipping we will calculate again)
+        # add_regressions(conn, test_run_lookup)
 
 
 def add_regressions(conn, test_run_lookup):
@@ -133,9 +133,11 @@ def add_regressions(conn, test_run_lookup):
             next_run = TestRun.objects.get(id=test_run_lookup[reg[idx["next_run"]]])
         except:
             next_run = None
-        regression, _ = Regressions.objects.get_or_create(
-            previous_run=previous_run, next_run=next_run, count=reg[idx["count"]]
-        )
+
+        if previous_run and next_run:
+            regression, _ = Regressions.objects.get_or_create(
+                previous_run=previous_run, next_run=next_run, count=reg[idx["count"]]
+            )
 
 
 def add_runs(conn):
@@ -158,20 +160,39 @@ def add_runs(conn):
     test_result_lookup = {}
     total_runs = len(runs)
 
+    # Keep track of repeated run count
+    repeated_run_count = 0
+    too_old_count = 0
+    imported_runs = 0
+    bad_test_mode_count = 0
+
+    # Don't add if older than 6 months ago
+    six_months_ago = make_aware(datetime.today() - timedelta(days=6 * 365 / 12))
+
     for i, run in enumerate(runs):
+
+        # Datetime converted from string
+        date_run = make_aware(parse_datetime(run[idx["run_date"]]))
+
+        # If it's older than 6 months, do not continue
+        if date_run < six_months_ago:
+            too_old_count += 1
+            continue
 
         print("Adding run %s of %s" % (i + 1, total_runs))
 
         # Derive the PR id either from dyninst or testsuite (I checked, it's either OR)
         if "PR" in run[idx["dyninst_branch"]]:
-            pr_id = re.sub("(PR|pr|dev_)", "", run[idx["dyninst_branch"]])
+            pr_id = re.sub("(PR|pr|dev_|prdev_|PRdev_)", "", run[idx["dyninst_branch"]])
             pr, _ = PullRequest.objects.get_or_create(
                 url="https://github.com/dyninst/dyninst/pull/%s" % pr_id,
                 user="unknown",
                 pr_id=int(pr_id),
             )
         elif "PR" in run[idx["testsuite_branch"]]:
-            pr_id = re.sub("(PR|pr|_dev)", "", run[idx["testsuite_branch"]])
+            pr_id = re.sub(
+                "(PR|pr|dev_|prdev_|PRdev_)", "", run[idx["testsuite_branch"]]
+            )
             pr, _ = PullRequest.objects.get_or_create(
                 url="https://github.com/dyninst/testsuite/pull/%s" % pr_id,
                 user="unknown",
@@ -247,22 +268,26 @@ def add_runs(conn):
             name=run[idx["compiler_name"]], version="Unknown"
         )
 
-        # Datetime converted from string
-        date_run = make_aware(parse_datetime(run[idx["run_date"]]))
-
         # Now create the testrun and keep track of the lookup
         # NOTE: we don't have any commands here!
-        test_run, _ = TestRun.objects.get_or_create(
-            date_run=date_run,
-            dyninst=dyninst_repo,
-            testsuite=testsuite_repo,
-            environment=env,
-            pull_request=pr,
-            cirun_url="unknown",
-            compiler=compiler,
-            result=test_run_result,
-        )
-        test_run_lookup[run[idx["id"]]] = test_run.id
+        # 656
+        try:
+            test_run, _ = TestRun.objects.get_or_create(
+                date_run=date_run,
+                dyninst=dyninst_repo,
+                testsuite=testsuite_repo,
+                environment=env,
+                pull_request=pr,
+                cirun_url="unknown",
+                compiler=compiler,
+                result=test_run_result,
+            )
+            test_run_lookup[run[idx["id"]]] = test_run.id
+        except:
+            repeated_run_count += 1
+            continue
+
+        imported_runs += 1
 
         # Query for the test results
         test_results = conn.run_query(
@@ -270,8 +295,12 @@ def add_runs(conn):
         )
         for result in test_results:
 
-            # Get the test mode
-            test_mode = TestMode.objects.get(name=result[ridx["mode"]])
+            # Get the test mode (found multiple empty string '')
+            try:
+                test_mode = TestMode.objects.get(name=result[ridx["mode"]])
+            except:
+                bad_test_mode_count += 1
+                test_mode = None
 
             # prepare booleans
             pic = False if result[ridx["pic"]] == "nonPIC" else True
@@ -297,4 +326,10 @@ def add_runs(conn):
             )
             test_result_lookup[result[ridx["resultid"]]] = test_result.id
 
+    print("RESULTS =========")
+    print("         total runs: %s" % total_runs)
+    print("         imported runs: %s" % imported_runs)
+    print("   import run error: %s" % repeated_run_count)
+    print("older than 6 months: %s" % too_old_count)
+    print("      bad test mode: %s" % bad_test_mode_count)
     return test_run_lookup, test_result_lookup

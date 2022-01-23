@@ -263,7 +263,7 @@ class TestResult(models.Model):
         "main.Compiler", null=False, blank=False, on_delete=models.CASCADE
     )
     test_mode = models.ForeignKey(
-        "main.TestMode", null=False, blank=False, on_delete=models.CASCADE
+        "main.TestMode", null=True, blank=True, on_delete=models.CASCADE
     )
 
     isPIC = models.BooleanField(default=False)

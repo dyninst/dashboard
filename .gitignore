@@ -16,3 +16,4 @@ db.sqlite3
 test-db.sqlite
 dyninst_dashboard.egg-info/
 migrations
+./data
