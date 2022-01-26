@@ -1,0 +1,32 @@
+# How to fill in fields? -------------------------------------------------------
+# For fields that you want to leave undefined, leave them as null
+# All fields get read in to a global settings.cfg.SETTING_NAME object.
+
+# How to set secrets? ----------------------------------------------------------
+# For each setting below, a value found in the environment prefixed with
+# DDASH_ will override it. This means that you should generally leave 
+# secrets unset and instead explort them in the environment.
+
+# Repository and Documentation
+GITHUB_REPOSITORY: https://github.com/dyninst/dashboard
+GITHUB_DOCUMENTATION: https://github.com/dyninst/dyninst
+
+# Version of Dyninst Dashboard
+VERSION: 0.0.0
+
+# Use sqlite (recommended unless you exported envars for database)
+USE_SQLITE: true
+
+# Global server settings
+ENVIRONMENT: test
+HELP_CONTACT_URL: https://github.com/dyninst/dashboard/issues
+DOMAIN_NAME: http://127.0.0.1
+DOMAIN_PORT: 5000
+
+# Caching
+# Will default to local "cache" folder in repository root
+CACHE_DIR: null
+DISABLE_CACHE: true
+
+# Logging
+LOG_LEVEL: "WARNING"
