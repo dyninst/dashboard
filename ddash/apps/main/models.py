@@ -241,6 +241,51 @@ class TestRun(models.Model):
     )
     command = models.TextField()
 
+    def get_testsuite_text(self):
+        testsuite_text = "<a href='%s'>%s</a>" % (
+            self.testsuite.name,
+            self.testsuite.branch,
+        )
+        if self.cirun_url and self.cirun_url != "unknown":
+            testsuite_text = "<a href='%s'>CI run</a>" % self.cirun_url
+
+        elif self.pull_request is not None:
+            testsuite_text = "<a href='%s'>PR %s</a>" % (
+                self.pull_request.url,
+                self.pull_request.pr_id,
+            )
+        return testsuite_text
+
+    def get_dyninst_text(self):
+        dyninst_text = "<a href='%s'>%s</a>" % (
+            self.dyninst.name,
+            self.dyninst.branch,
+        )
+        if self.cirun_url and self.cirun_url != "unknown":
+            dyninst_text = "<a href='%s'>CI run</a>" % self.cirun_url
+
+        elif self.pull_request is not None:
+            dyninst_text = "<a href='%s'>PR %s</a>" % (
+                self.pull_request.url,
+                self.pull_request.pr_id,
+            )
+        return dyninst_text
+
+    def get_compiler_name(self):
+        compiler_name = (
+            self.compiler.name
+            if self.compiler and self.compiler.name and self.compiler.name != "Unknown"
+            else ""
+        )
+        compiler_name = (
+            compiler_name + " " + self.compiler.version
+            if self.compiler
+            and self.compiler.version
+            and self.compiler.version != "Unknown"
+            else ""
+        )
+        return compiler_name
+
     def __str__(self):
         return "[testrun:%s]" % self.id
 

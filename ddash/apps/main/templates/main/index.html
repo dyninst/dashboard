@@ -109,38 +109,47 @@ function format_results ( d ) {
     if (d[12]) {
         compiler_name = compiler_name + " " + d[12]    
     }
-    dyninst_info = d[13] + " " + d[14] + " " + d[15]
-    testsuite_info = d[16] + " " + d[17] + " " + d[18]
-    
-
+    dyninst_commit_info = d[13] + "/commit/" + d[14]
+    dyninst_branch = d[13] + "/tree/" + d[15]
+    testsuite_commit_info = d[16] + "/commit/" + d[17]
+    testsuite_branch = d[16] + "/tree/" + d[18]    
+        
     return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
+       // This is redundant!
+       // '<tr>'+
+       //     '<td><strong>Compiler:<strong></td>'+
+       //     '<td>'+ compiler_name +'</td>'+
+       //     '<td></td>' +
+       //     '<td><strong>Failed:<strong></td>'+
+       //     '<td>'+ d[19] +'</td>'+
+       // '</tr>'+
         '<tr>'+
-            '<td><strong>Compiler:<strong></td>'+
-            '<td>'+ compiler_name +'</td>'+
-            '<td></td>' +
-            '<td><strong>Failed:<strong></td>'+
-            '<td>'+ d[19] +'</td>'+
-        '</tr>'+
-        '<tr>'+
-            '<td><strong>Dyninst</strong>:</td>'+
-            '<td>'+ dyninst_info +'</td>'+
+            '<td><strong>Dyninst Commit</strong>:</td>'+
+            '<td><a target="_blank" href="' + dyninst_commit_info + '">'+ dyninst_commit_info +'</td>'+
             '<td style="width:40px"></td>' +
             '<td><strong>Passed:<strong></td>'+
             '<td>'+ d[20] +'</td>'+
         '</tr>'+
         '<tr>'+
-            '<td><strong>Testsuite</strong>:</td>'+
-            '<td>'+ testsuite_info +'</td>'+
+            '<td><strong>Dyninst Branch</strong>:</td>'+
+            '<td><a target="_blank" href="' + dyninst_branch + '">'+ dyninst_branch +'</td>'+
             '<td></td>' +
             '<td><strong>Crashed:<strong></td>'+
             '<td>'+ d[21] +'</td>'+
         '</tr>'+
         '<tr>'+
-            '<td></td>'+
-            '<td></td>'+
+            '<td><strong>Testsuite Commit</strong>:</td>'+
+            '<td><a target="_blank" href="' + testsuite_commit_info + '">'+ testsuite_commit_info +'</td>'+
+            '<td></td>' +
+            '<td><strong>Crashed:<strong></td>'+
+            '<td>'+ d[22] +'</td>'+
+        '</tr>'+
+        '<tr>'+
+            '<td><strong>Testsuite Branch</strong></td>'+
+            '<td><a target="_blank" href="' + testsuite_branch + '">'+ testsuite_branch +'</td>'+
             '<td></td>' +
             '<td><strong>Hanged:<strong></td>'+
-            '<td>'+ d[22] +'</td>'+
+            '<td>'+ d[23] +'</td>'+
         '</tr>'+
         '<tr>'+
             '<td></td>'+
@@ -158,6 +167,7 @@ $(document).ready(function(){
     {className: "dt-control", "targets": 0},
     // Hide the extra metadata that appears in expanded rows
     {"visible": false, "targets": [10,11,12,13,14,15,16,17,18,19,20,21,22,23] },
+    {"sortable": false, "targets": [7,8,9]},
     {
       targets: [4,5,6],
       createdCell: function (td, cellData, rowData, row, col) {

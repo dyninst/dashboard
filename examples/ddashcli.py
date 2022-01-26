@@ -138,15 +138,17 @@ class DDashClient:
          - testsuite_build_log is for the testsuite BuildResult
         """
         response = self.upload_result_json(result_json)
+        results = {"result_json": response}
         print(response.get('message'))
         if response.get('code') == 201:
             run_id = 10 #response.get('data', {}).get('test_run')
             if run_id and test_log:
-                self.upload_result_log(test_log, run_id, "test_log")
+                results['test_log'] = self.upload_result_log(test_log, run_id, "test_log") 
             if run_id and dyninst_build_log:
-                self.upload_result_log(dyninst_build_log, run_id, "dyninst_build_log")
+                results['dyninst_build_log'] = self.upload_result_log(dyninst_build_log, run_id, "dyninst_build_log")
             if run_id and test_build_log:
-                self.upload_result_log(test_build_log, run_id, "test_build_log")
+                results['test_build_log'] = self.upload_result_log(test_build_log, run_id, "test_build_log")
+        return results
 
     def upload_result_json(self, result_json):
         """

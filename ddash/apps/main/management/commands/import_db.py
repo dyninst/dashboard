@@ -165,6 +165,7 @@ def add_runs(conn):
     too_old_count = 0
     imported_runs = 0
     bad_test_mode_count = 0
+    test_result_import_fail = 0
 
     # Don't add if older than 6 months ago
     six_months_ago = make_aware(datetime.today() - timedelta(days=6 * 365 / 12))
@@ -309,27 +310,31 @@ def add_runs(conn):
 
             # Get the compiler again!
             compiler, _ = Compiler.objects.get_or_create(
-                name=result[ridx["compiler"]], version="Unkown"
+                name=result[ridx["compiler"]], version="Unknown"
             )
-            test_result, _ = TestResult.objects.get_or_create(
-                run=test_run,
-                name=result[ridx["test_name"]],
-                compiler=compiler,
-                test_mode=test_mode,
-                isPIC=pic,
-                is64bit=is64bit,
-                isDynamic=dynamic,
-                reason=result[ridx["reason"]],
-                optimization=result[ridx["optimization"]],
-                status=result[ridx["result"]],
-                threading=result[ridx["threading"]],
-            )
-            test_result_lookup[result[ridx["resultid"]]] = test_result.id
+            try:
+                test_result, _ = TestResult.objects.get_or_create(
+                    run=test_run,
+                    name=result[ridx["test_name"]],
+                    compiler=compiler,
+                    test_mode=test_mode,
+                    isPIC=pic,
+                    is64bit=is64bit,
+                    isDynamic=dynamic,
+                    reason=result[ridx["reason"]],
+                    optimization=result[ridx["optimization"]],
+                    status=result[ridx["result"]],
+                    threading=result[ridx["threading"]],
+                )
+                test_result_lookup[result[ridx["resultid"]]] = test_result.id
+            except:
+                test_result_import_fail += 1
 
     print("RESULTS =========")
-    print("         total runs: %s" % total_runs)
-    print("         imported runs: %s" % imported_runs)
-    print("   import run error: %s" % repeated_run_count)
-    print("older than 6 months: %s" % too_old_count)
-    print("      bad test mode: %s" % bad_test_mode_count)
+    print("             total runs: %s" % total_runs)
+    print("          imported runs: %s" % imported_runs)
+    print("       import run error: %s" % repeated_run_count)
+    print("    older than 6 months: %s" % too_old_count)
+    print("test result import fail: %s" % test_result_import_fail)
+    print("          bad test mode: %s" % bad_test_mode_count)
     return test_run_lookup, test_result_lookup

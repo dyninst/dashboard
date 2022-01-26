@@ -1,0 +1,169 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% block page_title %}Run > {{ run.id }}{% endblock %}
+{% block css %}
+<style>
+code {
+    color: rgb(0, 123, 255);
+    display: inline-block;
+    max-width: 1400px;
+    padding: 10px;
+}
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+  background-color: transparent !important;
+  background: none !important;
+  border: none !important;
+}
+
+/*td.clickable-dyninst, td.clickable-testsuite {
+  cursor: pointer !important;
+  background-color: yellow !important;
+}*/
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  padding: 0px !important;
+}
+
+table>thead>tr>th {
+    color: #333 !important;
+}
+</style>
+<link href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css" rel=stylesheet>
+{% endblock %}
+{% block content %}
+<div class="row">
+   <div class="col-md-6">
+
+<div class="buildgroup">
+<h3 class="buildgroupname">
+  <a href="#" class="grouptrigger">
+    Test Run {{ run.id }} on {{ run.date_run }}
+  </a>
+</h3>
+</div>
+
+<table>
+ <thead>
+   <tr class="table-heading">
+     <th>Arch</th>
+     <th>Host</th>
+     <th>Dyninst</th>
+     <th>TestSuite</th>
+    {% if run.result.test_log %}<th>Log Files</th>{% endif %}
+   </tr>
+ </thead>
+<tbody class="table dart">
+   <tr>
+   <td>{{ run.environment.arch }}</td>
+   <td>{{ run.environment.hostname }}</td>
+   <td>{{ run.get_dyninst_text | safe }}</td>
+   <td>{{ run.get_testsuite_text | safe }}</td>
+   {% if run.result.test_log %}<td>{{ run.result.test_log }}</td>{% endif %}
+   </tr>
+</tbody></table>
+</div>
+{% if run.environment.dependencies.count > 0 %}
+<div class="col-md-6">
+
+<div class="buildgroup">
+<h3 class="buildgroupname">
+  <a href="#" class="grouptrigger">
+    Dependencies
+  </a>
+</h3>
+</div>
+
+<table>
+ <thead>
+   <tr class="table-heading">
+     <th>Name</th>
+     <th>Version</th>
+   </tr>
+ </thead>
+<tbody class="table dart">
+   {% for dep in run.environment.dependencies.all %}<tr>
+   <td>{{ dep.name }}</td>
+   <td>{% if dep.version %}{{ dep.version }}{% endif %}</td>
+   </tr>{% endfor %}
+</tbody></table>
+</div>{% endif %}
+</div>
+<table class="tabb compact table dt-responsive display" id="results_table" width="100%" cellspacing="0" cellpadding="4" border="0">
+  <thead>
+    <tr class="table-heading">
+      <th rowspan="2" class="column-header">
+        <span class="glyphicon glyphicon-none"></span>
+      </th>
+      <th rowspan="2" class="column-header">
+        Test Name
+        <span class="glyphicon glyphicon-none"></span>
+      </th>
+      <th rowspan="2" class="column-header">
+        Compiler
+        <span class="glyphicon glyphicon-none"></span>
+      </th>
+    </tr>
+    <tr class="table-heading">
+      <th class="column-header" style="">
+       Optimization
+        <span class="glyphicon glyphicon-none"></span>
+      </th>
+      <th class="column-header">
+        ABI
+        <span class="glyphicon glyphicon-chevron-down"></span>
+      </th>
+      <th class="column-header">
+	Mode
+        <span class="glyphicon glyphicon-chevron-down"></span>
+      </th>
+      <th class="column-header">
+        <span class="glyphicon glyphicon-chevron-down"></span>
+	Threading
+      </th>
+      <th class="column-header">
+	Linkage
+        <span class="glyphicon glyphicon-chevron-down"></span>
+      </th>
+      <th class="column-header">
+	PIC
+        <span class="glyphicon glyphicon-chevron-down"></span>
+      </th>
+      <th class="column-header">
+        Reason
+        <span class="glyphicon glyphicon-chevron-down"></span>
+      </th>
+      <th class="column-header">
+        Status
+        <span class="glyphicon glyphicon-chevron-down"></span>
+      </th>
+   </tr>   
+  </thead>
+  <tbody></tbody>
+</table>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function(){
+
+    $("#results_table").dataTable({"order": [[ 3, "asc" ]], "pageLength": 50, "processing": true, "serverSide": true, "ajax": "{% url 'api:internal_apis:results_detail_table' %}?run_id={{ run.id }}", "lengthMenu": [[25,50,100,250], [25,50,100,250]],
+    columnDefs: [ 
+    {
+      targets: [10],
+      createdCell: function (td, cellData, rowData, row, col) {
+        if (( cellData === 'OK' ) || (cellData == "PASSED")){
+            $(td).css('background-color', '#bfefbf');
+        } else if (cellData === 'FAILED') {
+            $(td).css('background-color', '#de6868');  
+        } else if ((cellData.includes("SKIPPED"))) {
+            $(td).css('background-color', 'orange');          
+        }
+    }
+  }]
+  });
+ 
+   $("#results_table").prepend('<thead><tr class="table-heading1"><td colspan="3" rowspan="1" class="nob"></td><td colspan="1" rowspan="1" class="center-text"></td><td colspan="3" rowspan="1" class="center-text"></td><td colspan="3" rowspan="1" class="center-text"></td><td class="nob" align="right"></td></tr></thead>')
+
+});
+</script>
+{% endblock %}

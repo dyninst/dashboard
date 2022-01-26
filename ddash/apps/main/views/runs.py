@@ -12,8 +12,5 @@ from ddash.settings import (
 @ratelimit(key="ip", rate=rl_rate, block=rl_block)
 def testrun_detail(request, id):
     testrun = get_object_or_404(TestRun, pk=id)
-    return render(
-        request,
-        "runs/detail.html",
-        {"testrun": testrun},
-    )
+    context = {"run": testrun}
+    return render(request, "runs/detail.html", context)
