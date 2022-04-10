@@ -1,20 +1,3 @@
-create table link_type("name" varchar(12));
-insert into link_type(name) values('dynamic');
-insert into link_type(name) values('static');
-
-create table status("name" varchar(8));
-insert into status(name) values('FAILED');
-insert into status(name) values('CRASHED');
-insert into status(name) values('SKIPPED');
-insert into status(name) values('PASSED');
-insert into status(name) values('HANGED');
-
-create table mode("name" varchar(12));
-insert into mode(name) values('attach');
-insert into mode(name) values('create');
-insert into mode(name) values('disk');
-insert into mode(name) values('rewriter');
-
 create table run(
 	"id" INTEGER NOT NULL PRIMARY KEY,
 	"arch" TEXT,
@@ -109,3 +92,14 @@ CREATE TABLE regression_count (
 );
 CREATE UNIQUE INDEX regression_count_unique ON regression_count(cur_run,prev_run); 
 
+CREATE TABLE test_result_summary (
+  "id" INTEGER NOT NULL PRIMARY KEY,
+  "runid" INTEGER NOT NULL,
+  "passed" INTEGER NOT NULL,
+  "failed" INTEGER NOT NULL,
+  "skipped" INTEGER NOT NULL,
+  "crashed" INTEGER NOT NULL,
+  "hanged" INTEGER NOT NULL,
+  FOREIGN KEY(runid) REFERENCES run(id)
+);
+CREATE UNIQUE INDEX test_result_summary_unique ON test_result_summary(runid);
