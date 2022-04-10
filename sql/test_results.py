@@ -21,15 +21,6 @@ def counts(db_conn, runid):
     cur.close()
     return res
 
-def insert_hangs(db, runid, test_names):
-    db.execute('BEGIN TRANSACTION')
-    
-    for n in test_names:
-        query = "INSERT INTO test_result('runid', 'test_name', 'result') VALUES (?,?,?)"
-        db.execute(query, [runid, n, 'HANGED'])
-    
-    db.commit()
-
 def bulk_insert(db_conn, runid, logfile):
     fields = [
         'runid', 'test_name',
