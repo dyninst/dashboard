@@ -17,3 +17,6 @@ sql/views.sql
 # DBeaver folders
 .dbeaver/
 Scripts/
+
+new_schema
+results.sqlite3-journal
