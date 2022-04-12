@@ -24,7 +24,7 @@ if run is not None:
 		end
 	end
 	
-	# Convert UTC datetimes to 
+  # Convert UTC datetime to local time 
   from datetime import datetime, timezone
   def utc_to_localtime(utc_string):
     utc_dt = datetime.strptime(utc_string, '%Y-%m-%d %H:%M:%S')
