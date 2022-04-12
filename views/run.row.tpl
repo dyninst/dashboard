@@ -23,11 +23,19 @@ if run is not None:
 			return default_color
 		end
 	end
+	
+	# Convert UTC datetimes to 
+  from datetime import datetime, timezone
+  def utc_to_localtime(utc_string):
+    utc_dt = datetime.strptime(utc_string, '%Y-%m-%d %H:%M:%S')
+    lt = utc_dt.replace(tzinfo=timezone.utc).astimezone(tz=None)
+    return lt.strftime('%b %d %Y %I:%M%p')
+  end
 %>
 
 	<tr class="item">
 	<td align="center"><a href="{{ url('/details') }}/{{ run['runid'] }}">{{ run['runid'] }}</a></td>
-	<td align="center">{{run['run_date']}}</td>
+	<td align="center">{{ utc_to_localtime(run['run_date']) }}</td>
 	<td align="center">{{run['arch']}}/{{run['vendor']}}</td>
 	<td align="center">{{run['hostname']}}</td>
 	<td align="center">{{run['compiler_name']}}</td>
